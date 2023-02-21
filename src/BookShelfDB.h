@@ -4,20 +4,20 @@
 #include <unordered_map>
 #include <iostream>
 #include <vector>
+#include <string>
 
 #define HASH_MAP std::unordered_map
 
 namespace BookShelf
 {
 
-
 class Cell
 {
   public:
 	Cell();
-    Cell(char* name, int width, int height, bool Terminal, bool TerminalNI);
+    Cell(std::string name, int width, int height, bool Terminal, bool TerminalNI);
 
-	char* name() const { return name_; }
+	std::string name() const { return name_; }
 
     int lx() const { return lx_; }
 	int ly() const { return ly_; }
@@ -43,7 +43,7 @@ class Cell
 	void setOrient(char orient);
 
   private:
-    char* name_;
+	std::string name_;
 
 	int lx_;
 	int ly_;
@@ -67,11 +67,17 @@ class BookShelfDB
   public:
     BookShelfDB(int numNodes, int numTerminals);
 
-	void makeCell(char* name, int lx, int ly, bool Terminal, bool TerminalNI);
+	void makeCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
 
 	const std::vector<Cell*>& cellVector() const { return cellPtrs_; }
 
-	Cell* getCellbyName(char* name) { return cellMap_[name]; }
+	Cell* getCellbyName(std::string name) { return cellMap_[name]; }
+
+	void buildMap();
+
+	void verifyMap();
+	void verifyVec();
+	void verifyPtrVec();
 	
   private:
 
@@ -82,7 +88,7 @@ class BookShelfDB
 	std::vector<Cell*> cellPtrs_; 
 	std::vector<Cell>  cellInsts_; 
 
-	HASH_MAP<char*, Cell*> cellMap_;
+	HASH_MAP<std::string, Cell*> cellMap_;
 };
 	
 } // namespace BookShelf

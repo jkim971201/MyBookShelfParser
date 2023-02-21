@@ -2,11 +2,13 @@
 #include <cassert> // For Debug-Mode
 #include <cstring>
 #include <stdio.h>
+#include <string.h>
 
 #include "BookShelfDB.h"
 #include "BookShelfParser.h"
 
 #define BUF_SIZE 256
+#define MAX_CELL_NAME 12
 
 
 namespace BookShelf
@@ -79,14 +81,17 @@ BookShelfParser::read_nodes(const char* fileName)
 
   int numLines = 0;
 
+  int width  = 0;
+  int height = 0;
+  bool isTerminal   = false;
+  bool isTerminalNI = false;
+
+
   while(!feof(fp))
   {
-	int width  = 0;
-	int height = 0;
-	bool isTerminal   = false;
-	bool isTerminalNI = false;
-
-	char* cellName = token;
+    //char cellName[MAX_CELL_NAME];
+	//strcpy(cellName, token);
+	std::string cellName = std::string(token);
 
 	// Get Width
     token = getNextWord(" \t");
@@ -114,9 +119,14 @@ BookShelfParser::read_nodes(const char* fileName)
   }
 
   // For Debug
+  bookShelfDB_->buildMap();
   assert(numNodes == bookShelfDB_->cellVector().size());
 
   printf("[Parser] Successfully Finished %s!\n", fileName);
+
+  //bookShelfDB_->verifyVec();
+  //bookShelfDB_->verifyPtrVec();
+  //bookShelfDB_->verifyMap();
 }
 
 void
@@ -148,7 +158,12 @@ BookShelfParser::read_pl(const char* fileName)
 	bool isFixed   = false;
 	bool isFixedNI = false;
 
-	char* cellName = token;
+    std::string cellName = std::string(token);
+
+	Cell* myCell = bookShelfDB_->getCellbyName(cellName);
+	//std::cout << token << std::endl;
+	//std::cout << "=" << myCell->name() << std::endl;
+	assert(cellName == myCell->name());
 
 	// Get X Coordinate
     token = getNextWord(" \t");
@@ -158,19 +173,33 @@ BookShelfParser::read_pl(const char* fileName)
     token = getNextWord(" \t");
 	ly = atoi(token);
 
+	myCell->setXY(lx, ly);
+
 	// Get Orient
     token = getNextWord(" \t:");
 	orient = atoi(token);
 
+	if(orient != 'N') 
+	  myCell->setOrient(orient);
+
 	// Get Move-Type
     token = getNextWord(" \t");
 	if(token && !strcmp(token, "/FIXED\n")) 
-	  isFixed   = true;
+	  myCell->setFixed();
 	else if(token && !strcmp(token, "/FIXED_NI\n"))
-	  isFixedNI = true;
+	  myCell->setFixedNI();
+
+	//printf("[Parser] %s: %d %d\n", cellName.c_str(), lx, ly);
 
     token = goNextLine(buf, " \t\n", fp);
+
+	numLines++;
+
+	if(numLines % 100000 == 0)
+      printf("[Parser] Completed %d lines\n", numLines);
   }
+
+  printf("[Parser] Successfully Finished %s!\n", fileName);
 }
 
 } // namespace BookShelf
