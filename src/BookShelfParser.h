@@ -5,6 +5,8 @@
 #include <string>
 #include "BookShelfDB.h"
 
+#define MAX_FILE_NAME 256
+
 namespace BookShelf
 {
 
@@ -13,22 +15,27 @@ class BookShelfDB;
 class BookShelfParser
 {
   public:
-    BookShelfParser(const char* fileName);
+    BookShelfParser();
+    BookShelfParser(const char* aux_name);
 
-    void Parse(const char* fileName1, const char* fileName2);
+    void Parse();
 
-	void read_nodes(const char* fileName);
-	void read_pl(const char* fileName);
+	void read_aux();
+	void read_nodes();
+	void read_pl();
+	void read_scl();
 
   private:
 	std::shared_ptr<BookShelfDB> bookShelfDB_;
 
 	// From .aux
-	std::string nodesFileName_;
-	//char* nodesFileName_;
-	//char* netsFileName_;
-	//char* plFileName_;
-	//char* sclFileName_;
+	char   dir_[MAX_FILE_NAME];
+
+	char   aux_[MAX_FILE_NAME];
+	char nodes_[MAX_FILE_NAME];
+	char  nets_[MAX_FILE_NAME];
+	char    pl_[MAX_FILE_NAME];
+	char   scl_[MAX_FILE_NAME];
 };
 
 

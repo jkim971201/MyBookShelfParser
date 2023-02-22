@@ -8,17 +8,16 @@ using namespace BookShelf;
 int main(int argc, char** argv)
 {
 
-  if(argc < 3)
+  if(argc < 2)
   {
-	std::cout << ".pl file is missing!" << std::endl;
+	std::cout << ".aux file is missing!" << std::endl;
     exit(0);
   }
 
-  const char* nodesFileName = argv[1];
-  const char* plFileName = argv[2];
+  const char* aux_file = argv[1];
 
-  BookShelfParser Parser(nodesFileName);
-  Parser.Parse(nodesFileName, plFileName);
+  BookShelfParser Parser(aux_file);
+  Parser.Parse();
 
   return 0;
 }

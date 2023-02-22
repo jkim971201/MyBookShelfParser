@@ -11,11 +11,48 @@
 namespace BookShelf
 {
 
-class Cell
+class BsRow
 {
   public:
-	Cell();
-    Cell(std::string name, int width, int height, bool Terminal, bool TerminalNI);
+    BsRow(int idx, int ly, int rowHeight, 
+		  int siteWidth, int siteSpacing, int offsetX, int numSites);
+
+    int id() const { return idx_;                 }
+
+	int dx() const { return rowWidth_;            }
+	int dy() const { return rowHeight_;           }
+
+    int lx() const { return offsetX_;             }
+	int ly() const { return ly_;                  }
+	int ux() const { return offsetX_ + rowWidth_; }
+	int uy() const { return ly_ + rowHeight_;     }
+
+	int siteSpacing() const { return siteSpacing_; }
+	int numSites()    const { return numSites_;    }
+
+  private:
+	int  idx_;
+
+	// These are written in .scl file
+    int  ly_;           // 1. Coordinate of ly
+	int  rowHeight_;    // 2. Height
+	int  siteWidth_;    // 3. Site Width
+	int  siteSpacing_;  // 4. Site Spacing
+    bool siteOrient_;   // 5. Siteorient
+	bool siteSymmetry_; // 6. Sitesymmetry
+	int  offsetX_;      // 7. SubrowOrigin
+	int  numSites_;     // 8. NumSites
+
+	// RowWidth = numSites * (siteSpacing + siteWidth) - siteSpacing 
+	int  rowWidth_; 
+};
+
+
+class BsCell
+{
+  public:
+	BsCell();
+    BsCell(std::string name, int width, int height, bool Terminal, bool TerminalNI);
 
 	std::string name() const { return name_; }
 
@@ -67,13 +104,18 @@ class BookShelfDB
   public:
     BookShelfDB(int numNodes, int numTerminals);
 
-	void makeCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
+	void makeBsCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
+	void makeBsRow(int idx, int ly, int rowHeight, 
+				   int siteWidth, int siteSpacing, int offsetX, int numSites);
 
-	const std::vector<Cell*>& cellVector() const { return cellPtrs_; }
+	const std::vector<BsCell*>& cellVector() const { return cellPtrs_; }
+	const std::vector<BsRow*>&  rowVector() const { return rowPtrs_; }
 
-	Cell* getCellbyName(std::string name) { return cellMap_[name]; }
+	BsCell* getBsCellbyName(std::string name) { return cellMap_[name]; }
+	BsRow*  getBsRowbyId(int id) { return rowMap_[id];    }
 
-	void buildMap();
+	void buildBsCellMap();
+	void buildBsRowMap();
 
 	void verifyMap();
 	void verifyVec();
@@ -81,14 +123,19 @@ class BookShelfDB
 	
   private:
 
-	int numCells_;
-	int numStdCells_;
+	int numBsCells_;
+	int numStdBsCells_;
 	int numMacros_;
-	
-	std::vector<Cell*> cellPtrs_; 
-	std::vector<Cell>  cellInsts_; 
 
-	HASH_MAP<std::string, Cell*> cellMap_;
+	std::vector<BsRow*> rowPtrs_; 
+	std::vector<BsRow>  rowInsts_; 
+
+	HASH_MAP<int, BsRow*> rowMap_;
+	
+	std::vector<BsCell*> cellPtrs_; 
+	std::vector<BsCell>  cellInsts_; 
+
+	HASH_MAP<std::string, BsCell*> cellMap_;
 };
 	
 } // namespace BookShelf
