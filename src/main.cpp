@@ -18,6 +18,7 @@ int main(int argc, char** argv)
 
   BookShelfParser Parser(aux_file);
   Parser.Parse();
+  Parser.drawFromBookShelfDB();
 
   return 0;
 }

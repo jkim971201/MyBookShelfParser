@@ -464,5 +464,13 @@ BookShelfParser::read_scl()
   printf("[Parser] Successfully Finished %s!\n", scl_);
 }
 
+void
+BookShelfParser::drawFromBookShelfDB()
+{
+  printf("[Parser] Draw from BookShelfDB\n");
+  bsPainter_ = std::make_shared<BsPainter>(bookShelfDB_);
+  bsPainter_->drawChip();
+}
+
 
 } // namespace BookShelf

@@ -11,6 +11,25 @@
 namespace BookShelf
 {
 
+class BsDie
+{
+  public:
+    BsDie();
+
+	int dx() const { return dx_; }
+	int dy() const { return dy_; }
+
+	void setDxDy(int dx, int dy) 
+	{
+	  dx_ = dx;
+	  dy_ = dy;
+	};
+
+  private:
+    int dx_;
+	int dy_;
+};
+
 class BsRow
 {
   public:
@@ -114,18 +133,28 @@ class BookShelfDB
 	BsCell* getBsCellbyName(std::string name) { return cellMap_[name]; }
 	BsRow*  getBsRowbyId(int id) { return rowMap_[id];    }
 
+	const BsDie* getDie() { return bsDiePtr_; };
+
 	void buildBsCellMap();
 	void buildBsRowMap();
 
 	void verifyMap();
 	void verifyVec();
 	void verifyPtrVec();
+
+	int numRows() const  { return numRows_; }
+	int numCells() const { return numBsCells_; }
 	
+	int getDieWidth() const  { return bsDiePtr_->dx(); }
+	int getDieHeight() const { return bsDiePtr_->dy(); }
+
   private:
 
 	int numBsCells_;
 	int numStdBsCells_;
 	int numMacros_;
+
+	int numRows_;
 
 	std::vector<BsRow*> rowPtrs_; 
 	std::vector<BsRow>  rowInsts_; 
@@ -136,6 +165,9 @@ class BookShelfDB
 	std::vector<BsCell>  cellInsts_; 
 
 	HASH_MAP<std::string, BsCell*> cellMap_;
+
+	BsDie bsDie_;
+	BsDie* bsDiePtr_;
 };
 	
 } // namespace BookShelf

@@ -4,11 +4,14 @@
 #include <memory>
 #include <string>
 #include "BookShelfDB.h"
+#include "Painter.h"
 
 #define MAX_FILE_NAME 256
 
 namespace BookShelf
 {
+
+using namespace Painter;
 
 class BookShelfDB;
 
@@ -19,6 +22,7 @@ class BookShelfParser
     BookShelfParser(const char* aux_name);
 
     void Parse();
+	void drawFromBookShelfDB();
 
 	void read_aux();
 	void read_nodes();
@@ -27,6 +31,7 @@ class BookShelfParser
 
   private:
 	std::shared_ptr<BookShelfDB> bookShelfDB_;
+	std::shared_ptr<BsPainter> bsPainter_;
 
 	// From .aux
 	char   dir_[MAX_FILE_NAME];

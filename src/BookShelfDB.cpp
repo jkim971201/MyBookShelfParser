@@ -83,6 +83,12 @@ BsRow::BsRow(int idx        ,
 		      - siteSpacing;
 }
 
+//  BsDie //
+BsDie::BsDie()
+{
+  
+}
+
 // BookShelfDB //
 BookShelfDB::BookShelfDB(int numNodes, int numTerminals)
 {
@@ -129,12 +135,25 @@ BookShelfDB::makeBsRow(int idx        ,
 void
 BookShelfDB::buildBsRowMap()
 {
+  int maxX = 0;
+  int maxY = 0;
+
   printf("[BookShelfDB] Building Row Map\n");
   for(BsRow& r : rowInsts_)
   {
+	if(r.ux() > maxX) maxX = r.ux();
+	if(r.uy() > maxY) maxY = r.uy();
+
     rowPtrs_.push_back(&r);
     rowMap_.emplace(r.id(), &r);
   }
+
+  bsDie_.setDxDy(maxX, maxY);
+  bsDiePtr_ = &bsDie_;
+
+  printf("[BookShelfDB] Creating a Die(%d, %d)\n", maxX, maxY);
+
+  numRows_ = rowPtrs_.size();
 }
 
 void
