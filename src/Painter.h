@@ -52,12 +52,11 @@ class Painter
 	int offsetX_;
 	int offsetY_;
 
-	double scale_;
-	double scaleX_; // Scaling Factor
-	double scaleY_; // To Fit the Window Size
+	double scale_; 
+	// Scaling Factor to fit the window size
 
-	int dieWidth_;
-	int dieHeight_;
+	int maxWidth_;
+	int maxHeight_;
 	
     //CImg library
 	CImg<unsigned char>* canvas_;

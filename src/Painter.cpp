@@ -46,7 +46,7 @@ Painter::getX(int dbX)
 int
 Painter::getY(int dbY)
 {
-  double tempY = static_cast<double>(dieHeight_ - dbY);
+  double tempY = static_cast<double>(maxHeight_ - dbY);
   tempY = scale_ * tempY;
   return (static_cast<int>(tempY) + offsetY_);
 }
@@ -128,24 +128,25 @@ BsPainter::BsPainter(std::shared_ptr<BookShelf::BookShelfDB> bsDB)
 {
   bookShelfDB_ = bsDB;
 
-  dieWidth_  = bookShelfDB_->getDieWidth();
-  dieHeight_ = bookShelfDB_->getDieHeight();
+  maxWidth_ = 0;
+  maxHeight_ = 0;
+  for(auto c : bookShelfDB_->cellVector())
+  {
+    if(c->ux() > maxWidth_)
+	  maxWidth_ = c->ux();
+    if(c->uy() > maxHeight_)
+	  maxHeight_ = c->uy();
+  }
 
-  scaleX_ = double(MAX_H) / double(dieWidth_);
-  scaleY_ = double(MAX_H) / double(dieHeight_);
+  double scaleX = double(MAX_H) / double(maxWidth_);
+  double scaleY = double(MAX_H) / double(maxHeight_);
 
-  scale_  = std::min(scaleX_, scaleY_);
-
-  printf("[GUI] Scaled Die Width  = %d * %f = %d.\n", dieWidth_ , scale_, int(dieWidth_  * scale_));
-  printf("[GUI] Scaled Die Height = %d * %f = %d.\n", dieHeight_, scale_, int(dieHeight_ * scale_));
+  scale_  = std::min(scaleX, scaleY);
 }
 
 void
 BsPainter::drawDie()
 {
-  printf("[GUI] Drawing a Die (%d, %d)-(%d, %d).\n", 
-				          getX(0)        , getY(0)         , 
-						  getX(dieWidth_), getY(dieHeight_) );
   drawRect(getX(bookShelfDB_->getDie()->lx()), getY(bookShelfDB_->getDie()->lx()), 
 		   getX(bookShelfDB_->getDie()->ux()), getY(bookShelfDB_->getDie()->ux()), 
 		   gray, black, DIE_LINE_THICKNESS);
