@@ -16,18 +16,31 @@ class BsDie
   public:
     BsDie();
 
-	int dx() const { return dx_; }
-	int dy() const { return dy_; }
+	int ux() const { return ux_; }
+	int uy() const { return uy_; }
+	int lx() const { return lx_; }
+	int ly() const { return ly_; }
 
-	void setDxDy(int dx, int dy) 
+	int dx() const { return ux_ - lx_; }
+	int dy() const { return uy_ - ly_; }
+
+	void setUxUy(int ux, int uy) 
 	{
-	  dx_ = dx;
-	  dy_ = dy;
+	  ux_ = ux;
+	  uy_ = uy;
+	};
+
+    void setLxLy(int lx, int ly) 
+	{
+	  lx_ = lx;
+	  ly_ = ly;
 	};
 
   private:
-    int dx_;
-	int dy_;
+    int ux_;
+    int uy_;
+    int lx_;
+	int ly_;
 };
 
 class BsRow

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <cassert>
+#include <climits>
 #include <stdio.h>
 
 #include "BookShelfDB.h"
@@ -55,6 +56,8 @@ BsCell::setXY(int x, int y)
 {
   lx_ = x;
   ly_ = y;
+  ux_ = lx_ + dx_;
+  uy_ = ly_ + dy_;
 }
 
 // BsRow //
@@ -79,8 +82,7 @@ BsRow::BsRow(int idx        ,
   siteSymmetry_ = true;
 
   // Implicit Value
-  rowWidth_ = numSites_ * (siteSpacing_ + siteWidth_)
-		      - siteSpacing;
+  rowWidth_ = numSites_ * siteSpacing_;
 }
 
 //  BsDie //
@@ -138,17 +140,21 @@ BookShelfDB::buildBsRowMap()
   int maxX = 0;
   int maxY = 0;
 
+  int minX = INT_MAX;
+
   printf("[BookShelfDB] Building Row Map\n");
   for(BsRow& r : rowInsts_)
   {
 	if(r.ux() > maxX) maxX = r.ux();
+	if(r.lx() < minX) minX = r.lx();
 	if(r.uy() > maxY) maxY = r.uy();
 
     rowPtrs_.push_back(&r);
     rowMap_.emplace(r.id(), &r);
   }
 
-  bsDie_.setDxDy(maxX, maxY);
+  bsDie_.setUxUy(maxX, maxY);
+  bsDie_.setLxLy(minX,    0);
   bsDiePtr_ = &bsDie_;
 
   printf("[BookShelfDB] Creating a Die(%d, %d)\n", maxX, maxY);

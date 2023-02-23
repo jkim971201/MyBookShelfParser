@@ -14,7 +14,9 @@ static const unsigned char white[]  = {255, 255, 255},
                            green[]  = {  0, 255,   0},
                            purple[] = {255, 100, 255},
                            orange[] = {255, 165,   0},
-                           yellow[] = {255, 255,   0};
+                           yellow[] = {255, 255,   0},
+                           gray[]   = {204, 204, 204},
+                           aqua[]   = {204, 204, 255};
 
 using namespace BookShelf;
 using namespace cimg_library;
@@ -33,8 +35,9 @@ class Painter
 
     void drawLine(int x1, int y1, int x2, int y2);
 	void drawLine(int x1, int y1, int x2, int y2, Color c);
-	void drawLine(int x1, int y1, int x2, int y2, Color c, int w);
 
+
+	void drawRect(int lx, int ly, int ux, int uy, Color rect_c, int w);
 	void drawRect(int lx, int ly, int ux, int uy, Color rect_c, 
 				  Color line_c = black, int w = 0);
 	              // line_c: border-line color
