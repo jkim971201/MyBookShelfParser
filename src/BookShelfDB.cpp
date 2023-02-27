@@ -91,6 +91,12 @@ BsDie::BsDie()
   
 }
 
+//  BsNet  //
+BsNet::BsNet(std::string name)
+{
+  name_ = name;
+}
+
 // BookShelfDB //
 BookShelfDB::BookShelfDB(int numNodes, int numTerminals)
 {
@@ -106,8 +112,12 @@ void
 BookShelfDB::makeBsCell(std::string name, int  width, int height, 
 				        bool isTerminal, bool isTerminalNI)
 {
-  BsCell oneBsCell(name, width, height, isTerminal, isTerminalNI);
+  BsCell oneBsCell(name, 
+				   width, 
+				   height, 
+				   isTerminal, isTerminalNI);
   cellInsts_.push_back(oneBsCell);
+  // cellPtr is filled by buildBsCellMap()
 }
 
 void
@@ -130,8 +140,23 @@ BookShelfDB::makeBsRow(int idx        ,
 					   int offsetX    ,
 					   int numSites)
 {
-  BsRow oneBsRow(idx, ly, rowHeight, siteWidth, siteSpacing, offsetX, numSites);
+  BsRow oneBsRow(idx, ly         , 
+				      rowHeight  , 
+					  siteWidth  , 
+					  siteSpacing, 
+					  offsetX    , 
+					  numSites);
   rowInsts_.push_back(oneBsRow);
+  // rowPtrs is filled by buildBsRowMap()
+}
+
+void
+BookShelfDB::makeBsNet(std::string name)
+{
+  BsNet oneBsNet(name);
+  netInsts_.push_back(oneBsNet);
+  netPtrs_.push_back(&oneBsNet);
+  netMap_[name] = &oneBsNet;
 }
 
 void

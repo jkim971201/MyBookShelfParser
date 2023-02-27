@@ -28,6 +28,7 @@ class BookShelfParser
 	void read_nodes();
 	void read_pl();
 	void read_scl();
+	void read_nets();
 
   private:
 	std::shared_ptr<BookShelfDB> bookShelfDB_;

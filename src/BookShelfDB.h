@@ -8,8 +8,18 @@
 
 #define HASH_MAP std::unordered_map
 
+// By Jaekyung Im
+// BookShelfDB does not have ability to do anything itself
+// it's just a container of raw values from original
+// input file ( .nodes .pl .scl .nets ) 
+// You don't have to worry about some APIs are missing
+// This is sufficient for building a PlacerDB
+
 namespace BookShelf
 {
+
+class BsNet;
+class BsCell;
 
 class BsDie
 {
@@ -111,6 +121,10 @@ class BsCell
 
 	void setOrient(char orient);
 
+	void addNewPin(BsPin* pin) { pins_.push_back(pin); }
+
+	const std::vector<BsPin*>& pins() const { return pins_; }
+
   private:
 	std::string name_;
 
@@ -129,6 +143,50 @@ class BsCell
 
 	bool isFixed_;
 	bool isFixedNI_;
+
+	std::vector<BsPin*> pins_;
+};
+
+class BsPin
+{
+  public:
+    BsPin(BsCell* cell, BsNet* net, double offsetX_, double offsetY_, char IO);
+
+	BsCell* cell() const { return cell_; }
+	BsNet*  net()  const { return net_;  }
+
+	double offsetX() const { return offsetX_; }
+	double offsetY() const { return offsetY_; }
+
+	char IO() const { return io_; }
+
+  private:
+    BsCell* cell_;
+	BsNet* net_;
+ 
+	double offsetX_;
+	double offsetY_;
+
+	// if Sink   == I
+	// if Driver == O
+	char io_; 
+};
+
+class BsNet
+{
+  public:
+    BsNet(std::string name, int netDegree);
+
+    std::string name() const { return name_; }
+	int getDegree() const { return pins_.size(); }
+
+	void addNewPin(BsPin* pin) { pins_.push_back(pin); }
+
+	const std::vector<BsPin*>& pins() const { return pins_; }
+
+  private:
+    std::string name_;
+	std::vector<BsPin*> pins_;
 };
 
 class BookShelfDB
@@ -136,6 +194,8 @@ class BookShelfDB
   public:
     BookShelfDB(int numNodes, int numTerminals);
 
+
+    void makeBsNet(std::string name, int netDegree);
 	void makeBsCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
 	void makeBsRow(int idx, int ly, int rowHeight, 
 				   int siteWidth, int siteSpacing, int offsetX, int numSites);
@@ -150,6 +210,7 @@ class BookShelfDB
 
 	void buildBsCellMap();
 	void buildBsRowMap();
+	void buildBsNetMap();
 
 	void verifyMap();
 	void verifyVec();
@@ -162,7 +223,6 @@ class BookShelfDB
 	int getDieHeight() const { return bsDiePtr_->dy(); }
 
   private:
-
 	int numBsCells_;
 	int numStdBsCells_;
 	int numMacros_;
@@ -173,6 +233,14 @@ class BookShelfDB
 	std::vector<BsRow>  rowInsts_; 
 
 	HASH_MAP<int, BsRow*> rowMap_;
+
+	std::vector<BsPin*> pinPtrs_; 
+	std::vector<BsPin>  pinInsts_; 
+
+	std::vector<BsNet*> netPtrs_; 
+	std::vector<BsNet>  netInsts_; 
+
+	HASH_MAP<std::string, BsNet*> netMap_;
 	
 	std::vector<BsCell*> cellPtrs_; 
 	std::vector<BsCell>  cellInsts_; 

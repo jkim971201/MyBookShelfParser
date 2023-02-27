@@ -17,6 +17,9 @@ namespace Painter
 using namespace BookShelf;
 using namespace cimg_library;
 
+static const Color MACRO_COLOR    = aqua;
+static const Color STD_CELL_COLOR = red;
+
 // Painter Interface //
 Painter::Painter() 
 {
@@ -147,8 +150,8 @@ BsPainter::BsPainter(std::shared_ptr<BookShelf::BookShelfDB> bsDB)
 void
 BsPainter::drawDie()
 {
-  drawRect(getX(bookShelfDB_->getDie()->lx()), getY(bookShelfDB_->getDie()->lx()), 
-		   getX(bookShelfDB_->getDie()->ux()), getY(bookShelfDB_->getDie()->ux()), 
+  drawRect(getX(bookShelfDB_->getDie()->lx()), getY(bookShelfDB_->getDie()->ly()), 
+		   getX(bookShelfDB_->getDie()->ux()), getY(bookShelfDB_->getDie()->uy()), 
 		   gray, black, DIE_LINE_THICKNESS);
 }
 
@@ -167,13 +170,9 @@ BsPainter::drawCell(BsCell* cell)
   int newUy = getY(cell->uy());
 	
   if(cell->isTerminal())
-  {
-    drawRect(newLx, newLy, newUx, newUy, aqua, 1);
-  }
+    drawRect(newLx, newLy, newUx, newUy, MACRO_COLOR, 1);
   else
-  {
-    drawRect(newLx, newLy, newUx, newUy, red);
-  }
+    drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR);
 }
 
 void

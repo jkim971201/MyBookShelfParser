@@ -104,6 +104,7 @@ BookShelfParser::Parse()
   read_nodes();
   read_pl();
   read_scl();
+  read_nets();
 }
 
 void
@@ -155,6 +156,13 @@ BookShelfParser::read_aux()
 	  strcpy(scl_, token);
 	  catDirName(dir_, scl_);
 	}
+	else if(!strcmp(sfx, "nets"))
+	{
+	  printf("[Parser] .nets file detected.\n");
+	  strcpy(nets_, token);
+	  catDirName(dir_, nets_);
+	}
+
 	else
 	{
 	  printf("[Parser] not supported yet...\n");
@@ -353,7 +361,7 @@ BookShelfParser::read_scl()
   while(!token || !strcmp(token, "UCLA") || token[0] == '#')
     token = goNextLine(buf, " \t\n", fp);
 
-  // Read NumNodes (at this moment, buf == "NumNodes")
+  // Read NumRows (at this moment, buf == "NumRows")
   assert(!strcmp(buf, "NumRows"));
   token = getNextWord(" \t\n");
   token = getNextWord(" \t\n");
@@ -462,6 +470,58 @@ BookShelfParser::read_scl()
   bookShelfDB_->buildBsRowMap();
   assert(numRows == bookShelfDB_->rowVector().size());
   printf("[Parser] Successfully Finished %s!\n", scl_);
+}
+
+void
+BookShelfParser::read_nets()
+{
+  printf("[Parser] Reading %s...\n", nets_);
+
+  FILE *fp = fopen(nets_, "r");
+  char *token = NULL;
+  char buf[BUF_SIZE-1];
+
+  if(fp == NULL)
+  {
+    printf("[Parser] Failed to open %s...\n", nets_);
+    exit(0);
+  }
+
+  // Skip Headlines
+  while(!token || !strcmp(token, "UCLA") || token[0] == '#')
+    token = goNextLine(buf, " \t\n", fp);
+
+  // Read NumNets (at this moment, buf == "NumNets")
+  assert(!strcmp(buf, "NumNets"));
+  token = getNextWord(" \t\n:");
+  int numNets = atoi(token);
+  token = goNextLine(buf, " \t\n", fp);
+
+  // Read NumPins (at this moment, buf == "NumPins")
+  assert(!strcmp(buf, "NumPins"));
+  token = getNextWord(" \t\n:");
+  int numPins = atoi(token);
+  token = getNextWord(" \t\n");
+  token = goNextLine(buf, " \t\n", fp);
+
+  printf("[Parser] Total Nets: %d\n", numNets);
+  printf("[Parser] Total Pins: %d\n", numPins);
+
+  // Go to Next Line untill there are no blank lines anymore
+  while(!token)
+    token = goNextLine(buf, " \t\n", fp);
+
+  int netsRead = 0;
+
+  while(!feof(fp))
+  {
+    while(true)
+	{
+	  
+	}
+  }
+
+  printf("[Parser] Successfully Finished %s!\n", nets_);
 }
 
 void
