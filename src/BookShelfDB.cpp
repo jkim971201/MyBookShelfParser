@@ -73,13 +73,13 @@ BsRow::BsRow(int idx				,
 	idx_					= idx;
 
 	// Explicit Values from .scl file
-	ly_					 = ly;
+	ly_					  = ly;
 	rowHeight_		= rowHeight;
 	siteWidth_		= siteWidth;
 	siteSpacing_	= siteSpacing;
 	offsetX_			= offsetX;
-	numSites_		 = numSites;
-	siteOrient_	 = true;
+	numSites_		  = numSites;
+	siteOrient_	  = true;
 	siteSymmetry_ = true;
 
 	// Implicit Value
@@ -93,19 +93,20 @@ BsDie::BsDie()
 }
 
 //	BsNet	//
-BsNet::BsNet(std::string name)
+BsNet::BsNet(int id)
 {
-	name_ = name;
+	id_ = id;
 }
 
-
 // BsPin //
-BsPin::BsPin(BsCell* cell, BsNet *net, 
+BsPin::BsPin(BsCell* cell, int netID, 
 						 double offsetX, double offsetY,
 						 char IO)
 {
-  cell_ = cell;
-	net_  = net;
+  cell_  = cell;
+	net_   = nullptr;
+
+	netID_ = netID;
 
 	offsetX_ = offsetX;
 	offsetY_ = offsetY;
@@ -133,7 +134,7 @@ BookShelfDB::makeBsCell(std::string name, int	width, int height,
 					 height, 
 					 isTerminal, isTerminalNI);
 	cellInsts_.push_back(oneBsCell);
-	// cellPtr is filled by buildBsCellMap()
+	// cellPtrs will be filled by buildBsCellMap()
 }
 
 void
@@ -163,22 +164,19 @@ BookShelfDB::makeBsRow(int idx,
                  offsetX, 
                  numSites);
 	rowInsts_.push_back(oneBsRow);
-	// rowPtrs is filled by buildBsRowMap()
-}
-
-BsNet*
-BookShelfDB::makeBsNet(std::string name)
-{
-	BsNet oneBsNet(name);
-	netInsts_.push_back(oneBsNet);
-	//netPtrs_.push_back(&oneBsNet);
-	//netMap_[name] = &oneBsNet;
-	//return &(netInsts_.back());
-	return &(netInsts_[netInsts_.size()-1]);
+	// rowPtrs will be filled by buildBsRowMap()
 }
 
 void
-BookShelfDB::makeBsPin(BsCell* cell, BsNet* net, 
+BookShelfDB::makeBsNet(int netID)
+{
+	BsNet oneBsNet(netID);
+	netInsts_.push_back(oneBsNet);
+	// netPtrs will be filled by finishPinsAndNets()
+}
+
+void
+BookShelfDB::makeBsPin(BsCell* cell, int netID, 
                        double offsetX, double offsetY,
                        char IO)
 {
@@ -192,7 +190,7 @@ BookShelfDB::makeBsPin(BsCell* cell, BsNet* net,
 		exit(0);
 	}
 
-	BsPin oneBsPin(cell, net, offsetX, offsetY, IO);
+	BsPin oneBsPin(cell, netID, offsetX, offsetY, IO);
 
 	pinInsts_.push_back(oneBsPin);
 }
@@ -205,7 +203,7 @@ BookShelfDB::finishPinsAndNets()
   for(auto& net : netInsts_)
 	{
 		netPtrs_.push_back(&net); 
-		netMap_[net.name()] = &net; 
+		netMap_[net.id()] = &net; 
 	}
 
 	printf("[BookShelfDB] Adding pins to cells and nets.\n");
@@ -214,8 +212,21 @@ BookShelfDB::finishPinsAndNets()
 	{
 		pinPtrs_.push_back(&pin);
 	  pin.cell()->addNewPin(&pin);
-		printf("%f\n", pin.net());
-	  //pin.net()->addNewPin(&pin);
+	  if(!pin.net()) 
+			pin.setNet(getBsNetByID(pin.netID()));
+		else
+		{
+		  printf("[BookShelfDB] Unknown Error...\n");
+			exit(0);
+		}
+
+	  if(pin.net()) 
+			pin.net()->addNewPin(&pin);
+		else
+		{
+		  printf("[BookShelfDB] Unknown Error...\n");
+			exit(0);
+		}
 	}
 }
 

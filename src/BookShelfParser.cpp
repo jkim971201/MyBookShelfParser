@@ -519,9 +519,9 @@ BookShelfParser::read_nets()
 		int netDegree = atoi(token);
 
 		token = getNextWord(" \t\n");
-		std::string netName = std::string(token);
+		//std::string netName = std::string(token);
 
-		BsNet* netOfThesePins = bookShelfDB_->makeBsNet(netName);
+		bookShelfDB_->makeBsNet(netsRead); // netsRead => netID
 		//printf("[Parser] Net Name: %s\n", netOfThesePins->name().c_str());
 
 		char IO;
@@ -556,7 +556,7 @@ BookShelfParser::read_nets()
 			offsetY = atof(token);
 
 			bookShelfDB_->makeBsPin(cellOfThesePins, 
-			                        netOfThesePins, 
+			                        netsRead, // netID 
 			                        offsetX, offsetY, IO);
 			pinsRead++;
 		}

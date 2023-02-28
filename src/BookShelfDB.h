@@ -8,12 +8,14 @@
 
 #define HASH_MAP std::unordered_map
 
-// By Jaekyung Im
+// By Jaekyung Im 
+// 02. 28. 2023
 // BookShelfDB does not have ability to do anything itself
 // it's just a container of raw values from original
 // input file ( .nodes .pl .scl .nets ) 
 // You don't have to worry about some APIs are missing
 // This is sufficient for building a PlacerDB
+// ** Some stupid implementations are existing...
 
 namespace BookShelf
 {
@@ -151,7 +153,9 @@ class BsCell
 class BsPin
 {
 	public:
-		BsPin(BsCell* cell, BsNet* net, double offsetX_, double offsetY_, char IO);
+		BsPin(BsCell* cell, int netID, double offsetX_, double offsetY_, char IO);
+
+		int netID() const { return netID_; }
 
 		BsCell* cell() const { return cell_; }
 		BsNet*  net()  const { return net_;  }
@@ -161,7 +165,11 @@ class BsPin
 
 		char IO() const { return io_; }
 
+		void setNet(BsNet* net) { net_ = net; }
+
 	private:
+		int netID_;
+
 		BsCell* cell_;
 		BsNet* net_;
  
@@ -177,9 +185,9 @@ class BsPin
 class BsNet
 {
 	public:
-		BsNet(std::string name);
+		BsNet(int id);
 
-		std::string name() const { return name_; }
+		int id() const { return id_; }
 		int getDegree() const { return pins_.size(); }
 
 		void addNewPin(BsPin* pin) { pins_.push_back(pin); }
@@ -187,7 +195,7 @@ class BsNet
 		const std::vector<BsPin*>& pins() const { return pins_; }
 
 	private:
-		std::string name_;
+		int id_;
 		std::vector<BsPin*> pins_;
 };
 
@@ -197,8 +205,8 @@ class BookShelfDB
 		BookShelfDB(int numNodes, int numTerminals);
 
 		void makeBsCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
-		BsNet* makeBsNet(std::string name);
-		void makeBsPin(BsCell* cell, BsNet* net, double offX, double offY, char IO);
+		void makeBsNet(int netID);
+		void makeBsPin(BsCell* cell, int netID, double offX, double offY, char IO);
 
 		void makeBsRow(int idx, int ly, int rowHeight, 
 		               int siteWidth, int siteSpacing, int offsetX, int numSites);
@@ -207,9 +215,9 @@ class BookShelfDB
 		const std::vector<BsRow*>&  rowVector()  const { return rowPtrs_;  }
 		const std::vector<BsNet*>&  netVector()  const { return netPtrs_;  }
 
-		BsNet*  getBsNetByName(std::string name)  { return netMap_[name];  }
+		BsNet*  getBsNetByID(int id)              { return netMap_[id];  }
 		BsCell* getBsCellByName(std::string name) { return cellMap_[name]; }
-		BsRow*  getBsRowbyId(int id)              { return rowMap_[id];    }
+		BsRow*  getBsRowbyID(int id)              { return rowMap_[id];    }
 
 		const BsDie* getDie() { return bsDiePtr_; };
 
@@ -245,7 +253,7 @@ class BookShelfDB
 		std::vector<BsNet*> netPtrs_; 
 		std::vector<BsNet>  netInsts_; 
 
-		HASH_MAP<std::string, BsNet*> netMap_;
+		HASH_MAP<int, BsNet*> netMap_;
 
 		std::vector<BsCell*> cellPtrs_; 
 		std::vector<BsCell>  cellInsts_; 
