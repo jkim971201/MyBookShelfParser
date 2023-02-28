@@ -18,239 +18,244 @@
 namespace BookShelf
 {
 
+class BsPin;
 class BsNet;
 class BsCell;
 
 class BsDie
 {
-  public:
-    BsDie();
+	public:
+		BsDie();
 
-	int ux() const { return ux_; }
-	int uy() const { return uy_; }
-	int lx() const { return lx_; }
-	int ly() const { return ly_; }
+		int ux() const { return ux_; }
+		int uy() const { return uy_; }
+		int lx() const { return lx_; }
+		int ly() const { return ly_; }
 
-	int dx() const { return ux_ - lx_; }
-	int dy() const { return uy_ - ly_; }
+		int dx() const { return ux_ - lx_; }
+		int dy() const { return uy_ - ly_; }
 
-	void setUxUy(int ux, int uy) 
-	{
-	  ux_ = ux;
-	  uy_ = uy;
-	};
+		void setUxUy(int ux, int uy) 
+		{
+			ux_ = ux;
+			uy_ = uy;
+		};
 
-    void setLxLy(int lx, int ly) 
-	{
-	  lx_ = lx;
-	  ly_ = ly;
-	};
+		void setLxLy(int lx, int ly) 
+		{
+			lx_ = lx;
+			ly_ = ly;
+		};
 
-  private:
-    int ux_;
-    int uy_;
-    int lx_;
-	int ly_;
+	private:
+		int ux_;
+		int uy_;
+		int lx_;
+		int ly_;
 };
 
 class BsRow
 {
-  public:
-    BsRow(int idx, int ly, int rowHeight, 
-		  int siteWidth, int siteSpacing, int offsetX, int numSites);
+	public:
+		BsRow(int idx, int ly, int rowHeight, 
+		int siteWidth, int siteSpacing, int offsetX, int numSites);
 
-    int id() const { return idx_;                 }
+		int id() const { return idx_;                 }
 
-	int dx() const { return rowWidth_;            }
-	int dy() const { return rowHeight_;           }
+		int dx() const { return rowWidth_;            }
+		int dy() const { return rowHeight_;           }
 
-    int lx() const { return offsetX_;             }
-	int ly() const { return ly_;                  }
-	int ux() const { return offsetX_ + rowWidth_; }
-	int uy() const { return ly_ + rowHeight_;     }
+		int lx() const { return offsetX_;             }
+		int ly() const { return ly_;                  }
+		int ux() const { return offsetX_ + rowWidth_; }
+		int uy() const { return ly_ + rowHeight_;     }
 
-	int siteSpacing() const { return siteSpacing_; }
-	int numSites()    const { return numSites_;    }
+		int siteSpacing() const { return siteSpacing_; }
+		int numSites()    const { return numSites_;    }
 
-  private:
-	int  idx_;
+	private:
+		int  idx_;
 
-	// These are written in .scl file
-    int  ly_;           // 1. Coordinate of ly
-	int  rowHeight_;    // 2. Height
-	int  siteWidth_;    // 3. Site Width
-	int  siteSpacing_;  // 4. Site Spacing
-    bool siteOrient_;   // 5. Siteorient
-	bool siteSymmetry_; // 6. Sitesymmetry
-	int  offsetX_;      // 7. SubrowOrigin
-	int  numSites_;     // 8. NumSites
+		// These are written in .scl file
+		int  ly_;           // 1. Coordinate of ly
+		int  rowHeight_;    // 2. Height
+		int  siteWidth_;    // 3. Site Width
+		int  siteSpacing_;  // 4. Site Spacing
+		bool siteOrient_;   // 5. Siteorient
+		bool siteSymmetry_; // 6. Sitesymmetry
+		int  offsetX_;      // 7. SubrowOrigin
+		int  numSites_;     // 8. NumSites
 
-	// RowWidth = numSites * (siteSpacing + siteWidth) - siteSpacing 
-	int  rowWidth_; 
+		// RowWidth = numSites * (siteSpacing + siteWidth) - siteSpacing 
+		int  rowWidth_; 
 };
 
 
 class BsCell
 {
-  public:
-	BsCell();
-    BsCell(std::string name, int width, int height, bool Terminal, bool TerminalNI);
+	public:
+		BsCell();
+		BsCell(std::string name, int width, int height, bool Terminal, bool TerminalNI);
 
-	std::string name() const { return name_; }
+		std::string name() const { return name_; }
 
-    int lx() const { return lx_; }
-	int ly() const { return ly_; }
-	int ux() const { return ux_; }
-	int uy() const { return uy_; }
+		int lx() const { return lx_; }
+		int ly() const { return ly_; }
+		int ux() const { return ux_; }
+		int uy() const { return uy_; }
 
-	int dx() const { return dx_; }
-	int dy() const { return dy_; }
+		int dx() const { return dx_; }
+		int dy() const { return dy_; }
 
-	char orient()       const { return orient_;}
+		char orient()       const { return orient_;}
 
-	bool isTerminal()   const { return isTerminal_;   }
-	bool isTerminalNI() const { return isTerminalNI_; }
+		bool isTerminal()   const { return isTerminal_;   }
+		bool isTerminalNI() const { return isTerminalNI_; }
 
-	bool isFixed()      const { return isFixed_;      }
-	bool isFixedNI()    const { return isFixedNI_;    }
+		bool isFixed()      const { return isFixed_;      }
+		bool isFixedNI()    const { return isFixedNI_;    }
 
-	void setXY(int x, int y);
+		void setXY(int x, int y);
 
-	void setFixed();
-	void setFixedNI();
+		void setFixed();
+		void setFixedNI();
 
-	void setOrient(char orient);
+		void setOrient(char orient);
 
-	void addNewPin(BsPin* pin) { pins_.push_back(pin); }
+		void addNewPin(BsPin* pin) { pins_.push_back(pin); }
 
-	const std::vector<BsPin*>& pins() const { return pins_; }
+		const std::vector<BsPin*>& pins() const { return pins_; }
 
-  private:
-	std::string name_;
+	private:
+		std::string name_;
 
-	int lx_;
-	int ly_;
-	int ux_;
-	int uy_;
+		int lx_;
+		int ly_;
+		int ux_;
+		int uy_;
 
-	int dx_;
-    int dy_;
+		int dx_;
+		int dy_;
 
-	char orient_;
+		char orient_;
 
-	bool isTerminal_;
-	bool isTerminalNI_;
+		bool isTerminal_;
+		bool isTerminalNI_;
 
-	bool isFixed_;
-	bool isFixedNI_;
+		bool isFixed_;
+		bool isFixedNI_;
 
-	std::vector<BsPin*> pins_;
+		std::vector<BsPin*> pins_;
 };
 
 class BsPin
 {
-  public:
-    BsPin(BsCell* cell, BsNet* net, double offsetX_, double offsetY_, char IO);
+	public:
+		BsPin(BsCell* cell, BsNet* net, double offsetX_, double offsetY_, char IO);
 
-	BsCell* cell() const { return cell_; }
-	BsNet*  net()  const { return net_;  }
+		BsCell* cell() const { return cell_; }
+		BsNet*  net()  const { return net_;  }
 
-	double offsetX() const { return offsetX_; }
-	double offsetY() const { return offsetY_; }
+		double offsetX() const { return offsetX_; }
+		double offsetY() const { return offsetY_; }
 
-	char IO() const { return io_; }
+		char IO() const { return io_; }
 
-  private:
-    BsCell* cell_;
-	BsNet* net_;
+	private:
+		BsCell* cell_;
+		BsNet* net_;
  
-	double offsetX_;
-	double offsetY_;
+		double offsetX_;
+		double offsetY_;
 
-	// if Sink   == I
-	// if Driver == O
-	char io_; 
+		// if Sink    == I
+		// if Driver  == O
+		// if Both(?) == B
+		char io_; 
 };
 
 class BsNet
 {
-  public:
-    BsNet(std::string name, int netDegree);
+	public:
+		BsNet(std::string name);
 
-    std::string name() const { return name_; }
-	int getDegree() const { return pins_.size(); }
+		std::string name() const { return name_; }
+		int getDegree() const { return pins_.size(); }
 
-	void addNewPin(BsPin* pin) { pins_.push_back(pin); }
+		void addNewPin(BsPin* pin) { pins_.push_back(pin); }
 
-	const std::vector<BsPin*>& pins() const { return pins_; }
+		const std::vector<BsPin*>& pins() const { return pins_; }
 
-  private:
-    std::string name_;
-	std::vector<BsPin*> pins_;
+	private:
+		std::string name_;
+		std::vector<BsPin*> pins_;
 };
 
 class BookShelfDB
 {
-  public:
-    BookShelfDB(int numNodes, int numTerminals);
+	public:
+		BookShelfDB(int numNodes, int numTerminals);
 
+		void makeBsCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
+		BsNet* makeBsNet(std::string name);
+		void makeBsPin(BsCell* cell, BsNet* net, double offX, double offY, char IO);
 
-    void makeBsNet(std::string name, int netDegree);
-	void makeBsCell(std::string name, int lx, int ly, bool Terminal, bool TerminalNI);
-	void makeBsRow(int idx, int ly, int rowHeight, 
-				   int siteWidth, int siteSpacing, int offsetX, int numSites);
+		void makeBsRow(int idx, int ly, int rowHeight, 
+		               int siteWidth, int siteSpacing, int offsetX, int numSites);
 
-	const std::vector<BsCell*>& cellVector() const { return cellPtrs_; }
-	const std::vector<BsRow*>&  rowVector() const { return rowPtrs_; }
+		const std::vector<BsCell*>& cellVector() const { return cellPtrs_; }
+		const std::vector<BsRow*>&  rowVector()  const { return rowPtrs_;  }
+		const std::vector<BsNet*>&  netVector()  const { return netPtrs_;  }
 
-	BsCell* getBsCellbyName(std::string name) { return cellMap_[name]; }
-	BsRow*  getBsRowbyId(int id) { return rowMap_[id];    }
+		BsNet*  getBsNetByName(std::string name)  { return netMap_[name];  }
+		BsCell* getBsCellByName(std::string name) { return cellMap_[name]; }
+		BsRow*  getBsRowbyId(int id)              { return rowMap_[id];    }
 
-	const BsDie* getDie() { return bsDiePtr_; };
+		const BsDie* getDie() { return bsDiePtr_; };
 
-	void buildBsCellMap();
-	void buildBsRowMap();
-	void buildBsNetMap();
+		void buildBsCellMap();
+		void buildBsRowMap();
+		void finishPinsAndNets();
 
-	void verifyMap();
-	void verifyVec();
-	void verifyPtrVec();
+		void verifyMap();
+		void verifyVec();
+		void verifyPtrVec();
 
-	int numRows() const  { return numRows_; }
-	int numCells() const { return numBsCells_; }
-	
-	int getDieWidth() const  { return bsDiePtr_->dx(); }
-	int getDieHeight() const { return bsDiePtr_->dy(); }
+		int numRows() const  { return numRows_; }
+		int numCells() const { return numBsCells_; }
 
-  private:
-	int numBsCells_;
-	int numStdBsCells_;
-	int numMacros_;
+		int getDieWidth() const  { return bsDiePtr_->dx(); }
+		int getDieHeight() const { return bsDiePtr_->dy(); }
 
-	int numRows_;
+	private:
+		int numBsCells_;
+		int numStdBsCells_;
+		int numMacros_;
 
-	std::vector<BsRow*> rowPtrs_; 
-	std::vector<BsRow>  rowInsts_; 
+		int numRows_;
 
-	HASH_MAP<int, BsRow*> rowMap_;
+		std::vector<BsRow*> rowPtrs_; 
+		std::vector<BsRow>  rowInsts_; 
 
-	std::vector<BsPin*> pinPtrs_; 
-	std::vector<BsPin>  pinInsts_; 
+		HASH_MAP<int, BsRow*> rowMap_;
 
-	std::vector<BsNet*> netPtrs_; 
-	std::vector<BsNet>  netInsts_; 
+		std::vector<BsPin*> pinPtrs_; 
+		std::vector<BsPin>  pinInsts_; 
 
-	HASH_MAP<std::string, BsNet*> netMap_;
-	
-	std::vector<BsCell*> cellPtrs_; 
-	std::vector<BsCell>  cellInsts_; 
+		std::vector<BsNet*> netPtrs_; 
+		std::vector<BsNet>  netInsts_; 
 
-	HASH_MAP<std::string, BsCell*> cellMap_;
+		HASH_MAP<std::string, BsNet*> netMap_;
 
-	BsDie bsDie_;
-	BsDie* bsDiePtr_;
+		std::vector<BsCell*> cellPtrs_; 
+		std::vector<BsCell>  cellInsts_; 
+
+		HASH_MAP<std::string, BsCell*> cellMap_;
+
+		BsDie bsDie_;
+		BsDie* bsDiePtr_;
 };
-	
+
 } // namespace BookShelf
 
 #endif

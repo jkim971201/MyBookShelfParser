@@ -2,6 +2,7 @@
 #include <vector>
 #include <cassert>
 #include <climits>
+#include <cmath>
 #include <stdio.h>
 
 #include "BookShelfDB.h"
@@ -12,217 +13,278 @@ namespace BookShelf
 // BsCell //
 BsCell::BsCell()
 {
-  lx_ = ly_ = ux_ = uy_ = 0;
-  orient_ = 'N';
-  isFixed_ = isFixedNI_ = false;
+	lx_ = ly_ = ux_ = uy_ = 0;
+	orient_ = 'N';
+	isFixed_ = isFixedNI_ = false;
 }
 
-BsCell::BsCell(std::string name, int  width, int height, 
-	    	   bool isTerminal, bool isTerminalNI) 
-    : BsCell()
+BsCell::BsCell(std::string name, int	width, int height, 
+		           bool isTerminal, bool isTerminalNI) 
+		: BsCell()
 {
-  name_ = std::string(name);
+	name_ = std::string(name);
 
-  dx_ = width;
-  dy_ = height;
+	dx_ = width;
+	dy_ = height;
 
-  isTerminal_   = isTerminal;
-  isTerminalNI_ = isTerminalNI;
+	isTerminal_	  = isTerminal;
+	isTerminalNI_ = isTerminalNI;
 }
 
 void 
-BsCell::setFixed()   
+BsCell::setFixed()	 
 { 
-  isFixed_   = true; 
-  isFixedNI_ = false; 
+	isFixed_	 = true; 
+	isFixedNI_ = false; 
 }
 
 void 
 BsCell::setFixedNI() 
 { 
-  // isFixed is also true for FixedNI
-  isFixed_   = true; 
-  isFixedNI_ = true; 
+	// isFixed is also true for FixedNI
+	isFixed_	 = true; 
+	isFixedNI_ = true; 
 }
 
 void 
 BsCell::setOrient(char orient) 
 { 
-  orient_ = orient;
+	orient_ = orient;
 }
 
 void 
 BsCell::setXY(int x, int y)
 {
-  lx_ = x;
-  ly_ = y;
-  ux_ = lx_ + dx_;
-  uy_ = ly_ + dy_;
+	lx_ = x;
+	ly_ = y;
+	ux_ = lx_ + dx_;
+	uy_ = ly_ + dy_;
 }
 
 // BsRow //
-BsRow::BsRow(int idx        ,        
-			 int ly         , 
-			 int rowHeight  , 
-			 int siteWidth  , 
-			 int siteSpacing,
-			 int offsetX    ,
-			 int numSites)
+BsRow::BsRow(int idx				,				
+						 int ly				 , 
+						 int rowHeight	, 
+						 int siteWidth	, 
+						 int siteSpacing,
+						 int offsetX		,
+						 int numSites)
 {
-  idx_          = idx;
+	idx_					= idx;
 
-  // Explicit Values from .scl file
-  ly_           = ly;
-  rowHeight_    = rowHeight;
-  siteWidth_    = siteWidth;
-  siteSpacing_  = siteSpacing;
-  offsetX_      = offsetX;
-  numSites_     = numSites;
-  siteOrient_   = true;
-  siteSymmetry_ = true;
+	// Explicit Values from .scl file
+	ly_					 = ly;
+	rowHeight_		= rowHeight;
+	siteWidth_		= siteWidth;
+	siteSpacing_	= siteSpacing;
+	offsetX_			= offsetX;
+	numSites_		 = numSites;
+	siteOrient_	 = true;
+	siteSymmetry_ = true;
 
-  // Implicit Value
-  rowWidth_ = numSites_ * siteSpacing_;
+	// Implicit Value
+	rowWidth_ = numSites_ * siteSpacing_;
 }
 
-//  BsDie //
+//	BsDie //
 BsDie::BsDie()
 {
-  
+	
 }
 
-//  BsNet  //
+//	BsNet	//
 BsNet::BsNet(std::string name)
 {
-  name_ = name;
+	name_ = name;
+}
+
+
+// BsPin //
+BsPin::BsPin(BsCell* cell, BsNet *net, 
+						 double offsetX, double offsetY,
+						 char IO)
+{
+  cell_ = cell;
+	net_  = net;
+
+	offsetX_ = offsetX;
+	offsetY_ = offsetY;
+
+	io_ = IO;
 }
 
 // BookShelfDB //
 BookShelfDB::BookShelfDB(int numNodes, int numTerminals)
 {
-  numBsCells_ = numNodes;
-  numStdBsCells_ = numNodes - numTerminals;
-  numMacros_ = numTerminals;
+	numBsCells_ = numNodes;
+	numStdBsCells_ = numNodes - numTerminals;
+	numMacros_ = numTerminals;
 
-  cellPtrs_.reserve(numNodes);
-  cellInsts_.reserve(numNodes);
+	cellPtrs_.reserve(numNodes);
+	cellInsts_.reserve(numNodes);
 }
 
 void
-BookShelfDB::makeBsCell(std::string name, int  width, int height, 
-				        bool isTerminal, bool isTerminalNI)
+BookShelfDB::makeBsCell(std::string name, int	width, int height, 
+												bool isTerminal, bool isTerminalNI)
 {
-  BsCell oneBsCell(name, 
-				   width, 
-				   height, 
-				   isTerminal, isTerminalNI);
-  cellInsts_.push_back(oneBsCell);
-  // cellPtr is filled by buildBsCellMap()
+	BsCell oneBsCell(name, 
+					 width, 
+					 height, 
+					 isTerminal, isTerminalNI);
+	cellInsts_.push_back(oneBsCell);
+	// cellPtr is filled by buildBsCellMap()
 }
 
 void
 BookShelfDB::buildBsCellMap()
 {
-  printf("[BookShelfDB] Building Node Map\n");
-  for(BsCell& c : cellInsts_)
-  {
-    cellPtrs_.push_back(&c);
-    cellMap_.emplace(c.name(), &c);
-  }
+	printf("[BookShelfDB] Building Node Map\n");
+	for(BsCell& c : cellInsts_)
+	{
+		cellPtrs_.push_back(&c);
+		cellMap_.emplace(c.name(), &c);
+	}
 }
 
 void
-BookShelfDB::makeBsRow(int idx        ,        
-				       int ly         , 
-				       int rowHeight  , 
-				       int siteWidth  , 
-					   int siteSpacing,
-					   int offsetX    ,
-					   int numSites)
+BookShelfDB::makeBsRow(int idx,
+                       int ly, 
+                       int rowHeight, 
+                       int siteWidth, 
+                       int siteSpacing,
+                       int offsetX,
+                       int numSites)
 {
-  BsRow oneBsRow(idx, ly         , 
-				      rowHeight  , 
-					  siteWidth  , 
-					  siteSpacing, 
-					  offsetX    , 
-					  numSites);
-  rowInsts_.push_back(oneBsRow);
-  // rowPtrs is filled by buildBsRowMap()
+	BsRow oneBsRow(idx, ly, 
+                 rowHeight, 
+                 siteWidth, 
+                 siteSpacing, 
+                 offsetX, 
+                 numSites);
+	rowInsts_.push_back(oneBsRow);
+	// rowPtrs is filled by buildBsRowMap()
 }
 
-void
+BsNet*
 BookShelfDB::makeBsNet(std::string name)
 {
-  BsNet oneBsNet(name);
-  netInsts_.push_back(oneBsNet);
-  netPtrs_.push_back(&oneBsNet);
-  netMap_[name] = &oneBsNet;
+	BsNet oneBsNet(name);
+	netInsts_.push_back(oneBsNet);
+	//netPtrs_.push_back(&oneBsNet);
+	//netMap_[name] = &oneBsNet;
+	//return &(netInsts_.back());
+	return &(netInsts_[netInsts_.size()-1]);
+}
+
+void
+BookShelfDB::makeBsPin(BsCell* cell, BsNet* net, 
+                       double offsetX, double offsetY,
+                       char IO)
+{
+	double cell_half_w = static_cast<double>(cell->dx()) / 2;
+	double cell_half_h = static_cast<double>(cell->dy()) / 2;
+
+	if(std::abs(offsetX) > cell_half_w ||
+		 std::abs(offsetY) > cell_half_h ) 
+	{
+		printf("[BookShelfDB] [Error] Pin is out of Cell Boundary.\n");
+		exit(0);
+	}
+
+	BsPin oneBsPin(cell, net, offsetX, offsetY, IO);
+
+	pinInsts_.push_back(oneBsPin);
+}
+
+void
+BookShelfDB::finishPinsAndNets()
+{
+	printf("[BookShelfDB] Building Net maps.\n");
+
+  for(auto& net : netInsts_)
+	{
+		netPtrs_.push_back(&net); 
+		netMap_[net.name()] = &net; 
+	}
+
+	printf("[BookShelfDB] Adding pins to cells and nets.\n");
+
+  for(auto& pin : pinInsts_)
+	{
+		pinPtrs_.push_back(&pin);
+	  pin.cell()->addNewPin(&pin);
+		printf("%f\n", pin.net());
+	  //pin.net()->addNewPin(&pin);
+	}
 }
 
 void
 BookShelfDB::buildBsRowMap()
 {
-  int maxX = 0;
-  int maxY = 0;
+	int maxX = 0;
+	int maxY = 0;
 
-  int minX = INT_MAX;
+	int minX = INT_MAX;
+	int minY = INT_MAX;
 
-  printf("[BookShelfDB] Building Row Map\n");
-  for(BsRow& r : rowInsts_)
-  {
+	printf("[BookShelfDB] Building Row Map\n");
+	for(BsRow& r : rowInsts_)
+	{
 	if(r.ux() > maxX) maxX = r.ux();
 	if(r.lx() < minX) minX = r.lx();
 	if(r.uy() > maxY) maxY = r.uy();
 
-    rowPtrs_.push_back(&r);
-    rowMap_.emplace(r.id(), &r);
-  }
+		rowPtrs_.push_back(&r);
+		rowMap_.emplace(r.id(), &r);
+	}
 
-  bsDie_.setUxUy(maxX, maxY);
-  bsDie_.setLxLy(minX,    0);
-  bsDiePtr_ = &bsDie_;
+	for(auto& c : cellPtrs_)
+	{
+		if(c->uy() < minY) minY = c->uy();
+	}
 
-  printf("[BookShelfDB] Creating a Die(%d, %d)\n", maxX, maxY);
+	bsDie_.setUxUy(maxX, maxY);
+	bsDie_.setLxLy(minX, minY);
+	bsDiePtr_ = &bsDie_;
 
-  numRows_ = rowPtrs_.size();
+	printf("[BookShelfDB] Creating a Die(%d, %d) - (%d, %d) \n", 
+                                   	maxX, maxY, minX, minY);
+
+	numRows_ = rowPtrs_.size();
 }
 
 void
 BookShelfDB::verifyMap()
 {
-  std::cout << "Start Verifying Map Vector" << std::endl;
-  for(auto kv : cellMap_)
-  {
-    std::cout << "key name: " << kv.first << std::endl;
-    std::cout << "ptr width: " << kv.second->dx() << std::endl;
-  }
+	std::cout << "Start Verifying Map Vector" << std::endl;
+	for(auto kv : cellMap_)
+	{
+		std::cout << "key name: " << kv.first << std::endl;
+		std::cout << "ptr width: " << kv.second->dx() << std::endl;
+	}
 }
 
 void
 BookShelfDB::verifyVec()
 {
-  std::cout << "Start Verifying Instance Vector" << std::endl;
-  for(auto c : cellInsts_)
-  {
-    std::cout << "cell name: " << c.name() << std::endl;
-    std::cout << "cell width: " << c.dx() << std::endl;
-  }
+	std::cout << "Start Verifying Instance Vector" << std::endl;
+	for(auto c : cellInsts_)
+	{
+		std::cout << "cell name: " << c.name() << std::endl;
+		std::cout << "cell width: " << c.dx() << std::endl;
+	}
 }
 
 void
 BookShelfDB::verifyPtrVec()
 {
-  std::cout << "Start Verifying Pointer Vector" << std::endl;
-//  for(auto c : cellPtrs_)
-//  {
-//    std::cout << "cell name: " << c->name() << std::endl;
-//    std::cout << "cell width: " << c->dx() << std::endl;
-//  }
-  for(int i = 0; i < cellPtrs_.size(); i++)
-  {
-    std::cout << "cell name: " << cellPtrs_[i]->name() << std::endl;
-    std::cout << "cell width: " << cellPtrs_[i]->dx() << std::endl;
-  }
+	std::cout << "Start Verifying Pointer Vector" << std::endl;
+	for(int i = 0; i < cellPtrs_.size(); i++)
+	{
+		std::cout << "cell name: " << cellPtrs_[i]->name() << std::endl;
+		std::cout << "cell width: " << cellPtrs_[i]->dx() << std::endl;
+	}
 }
 
 } // namespace BookShelf
