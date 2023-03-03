@@ -1,5 +1,4 @@
-#ifndef BOOKSHELF_PARSER_H
-#define BOOKSHELF_PARSER_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -24,11 +23,16 @@ class BookShelfParser
 		void Parse();
 		void drawFromBookShelfDB();
 
-	void read_aux();
-	void read_nodes();
-	void read_pl();
-	void read_scl();
-	void read_nets();
+	  void read_aux();
+	  void read_nodes();
+	  void read_pl();
+	  void read_scl();
+	  void read_nets();
+
+    std::shared_ptr<BookShelfDB> const getDB() 
+    {
+      return bookShelfDB_;
+    };
 
 	private:
 		std::shared_ptr<BookShelfDB> bookShelfDB_;
@@ -45,5 +49,3 @@ class BookShelfParser
 };
 
 } // namespace BookShelf
-
-#endif

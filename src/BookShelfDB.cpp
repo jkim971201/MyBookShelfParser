@@ -27,14 +27,14 @@ BsCell::BsCell(std::string name, int	width, int height,
 	dx_ = width;
 	dy_ = height;
 
-	isTerminal_	  = isTerminal;
+	isTerminal_   = isTerminal;
 	isTerminalNI_ = isTerminalNI;
 }
 
 void 
 BsCell::setFixed()	 
 { 
-	isFixed_	 = true; 
+	isFixed_   = true; 
 	isFixedNI_ = false; 
 }
 
@@ -42,7 +42,7 @@ void
 BsCell::setFixedNI() 
 { 
 	// isFixed is also true for FixedNI
-	isFixed_	 = true; 
+	isFixed_   = true; 
 	isFixedNI_ = true; 
 }
 
@@ -62,31 +62,32 @@ BsCell::setXY(int x, int y)
 }
 
 // BsRow //
-BsRow::BsRow(int idx				,				
-						 int ly				 , 
-						 int rowHeight	, 
-						 int siteWidth	, 
-						 int siteSpacing,
-						 int offsetX		,
-						 int numSites)
+BsRow::BsRow(int idx        ,
+             int ly         , 
+             int rowHeight  , 
+             int siteWidth  , 
+             int siteSpacing,
+             int offsetX    ,
+             int numSites)
 {
-	idx_					= idx;
+	idx_          = idx;
 
 	// Explicit Values from .scl file
-	ly_					  = ly;
-	rowHeight_		= rowHeight;
-	siteWidth_		= siteWidth;
-	siteSpacing_	= siteSpacing;
-	offsetX_			= offsetX;
-	numSites_		  = numSites;
-	siteOrient_	  = true;
+	ly_           = ly;
+
+	rowHeight_    = rowHeight;
+	siteWidth_    = siteWidth;
+	siteSpacing_  = siteSpacing;
+	offsetX_      = offsetX;
+	numSites_     = numSites;
+	siteOrient_   = true;
 	siteSymmetry_ = true;
 
 	// Implicit Value
-	rowWidth_ = numSites_ * siteSpacing_;
+	rowWidth_ = numSites_ * siteSpacing_ + siteWidth_;
 }
 
-//	BsDie //
+// BsDie //
 BsDie::BsDie()
 {
 	
@@ -242,26 +243,23 @@ BookShelfDB::buildBsRowMap()
 	printf("[BookShelfDB] Building Row Map\n");
 	for(BsRow& r : rowInsts_)
 	{
-	if(r.ux() > maxX) maxX = r.ux();
-	if(r.lx() < minX) minX = r.lx();
-	if(r.uy() > maxY) maxY = r.uy();
-
+	  if(r.ux() > maxX) maxX = r.ux();
+	  if(r.lx() < minX) minX = r.lx();
+	  if(r.uy() > maxY) maxY = r.uy();
+	  if(r.ly() < minY) minY = r.ly();
 		rowPtrs_.push_back(&r);
 		rowMap_.emplace(r.id(), &r);
 	}
 
 	for(auto& c : cellPtrs_)
-	{
-		if(c->uy() < minY) minY = c->uy();
-	}
+    if(c->uy() < minY) minY = c->uy();
 
 	bsDie_.setUxUy(maxX, maxY);
 	bsDie_.setLxLy(minX, minY);
 	bsDiePtr_ = &bsDie_;
 
-	printf("[BookShelfDB] Creating a Die(%d, %d) - (%d, %d) \n", 
+	printf("[BookShelfDB] Creating a Die (%d, %d) - (%d, %d) \n", 
                                    	maxX, maxY, minX, minY);
-
 	numRows_ = rowPtrs_.size();
 }
 

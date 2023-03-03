@@ -360,7 +360,7 @@ BookShelfParser::read_scl()
 		token = goNextLine(buf, " \t\n", fp);
 
 	// Read NumRows (at this moment, buf == "NumRows")
-	assert(!strcmp(buf, "NumRows"));
+	assert(!strcmp(buf, "NumRows") || !strcmp(buf, "Numrows"));
 	token = getNextWord(" \t\n");
 	token = getNextWord(" \t\n");
 	int numRows = atoi(token);
@@ -427,7 +427,7 @@ BookShelfParser::read_scl()
 				token = getNextWord(" \t\n:");
 				offsetX = atoi(token);
 				token = getNextWord(" \t\n:");
-				if(!strcmp(token, "NumSites"))
+				if(!strcmp(token, "NumSites") || !strcmp(token, "Numsites"))
 				{
 					token = getNextWord(" \t\n:");
 					numSites = atoi(token);
@@ -435,12 +435,13 @@ BookShelfParser::read_scl()
 				else
 				{
 					printf("[Parser] Wrong BookShelf Syntax\n");
+					printf("[Parser] Current Token %s\n", token);
 					exit(0);
 				}
 			}
 			else if(!strcmp(token, "End"))
 			{
-				bookShelfDB_->makeBsRow(rowsRead,	// idx
+				bookShelfDB_->makeBsRow(rowsRead, // idx
 															ly, rowHeight, 
 															siteWidth, siteSpacing, 
 															offsetX, numSites);
@@ -451,6 +452,7 @@ BookShelfParser::read_scl()
 			else
 			{
 				printf("[Parser] Wrong BookShelf Syntax\n");
+				printf("[Parser] Current Token %s\n", token);
 				exit(0);
 			}
 		}
@@ -522,7 +524,6 @@ BookShelfParser::read_nets()
 		//std::string netName = std::string(token);
 
 		bookShelfDB_->makeBsNet(netsRead); // netsRead => netID
-		//printf("[Parser] Net Name: %s\n", netOfThesePins->name().c_str());
 
 		char IO;
 		double offsetX;
@@ -534,7 +535,6 @@ BookShelfParser::read_nets()
 			// Get Master Cell's Name
 			token = goNextLine(buf, " \t", fp);
 			BsCell* cellOfThesePins = bookShelfDB_->getBsCellByName(std::string(token));
-			//printf("[Parser] Cell Name: %s\n", cellOfThesePins->name().c_str());
 
 			// Get Pin IO Type
 			token = getNextWord(" \t\n");
@@ -549,11 +549,17 @@ BookShelfParser::read_nets()
 
 			// Get Pin Offset X
 			token = getNextWord(" \t\n:");
-			offsetX = atof(token);
+			if(token == NULL) // In ICCAD 2004 Benchmarks,
+				offsetX = 0.0;  // They do not provide offsets of Chip IOs
+			else 
+			  offsetX = atof(token);
 
 			// Get Pin Offset Y
 			token = getNextWord(" \t\n:");
-			offsetY = atof(token);
+			if(token == NULL) // In ICCAD 2004 Benchmarks,
+				offsetY = 0.0;  // They do not provide offsets of Chip IOs
+			else 
+			  offsetY = atof(token);
 
 			bookShelfDB_->makeBsPin(cellOfThesePins, 
 			                        netsRead, // netID 

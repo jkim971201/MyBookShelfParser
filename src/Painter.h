@@ -48,6 +48,7 @@ class Painter
 		virtual void drawDie() = 0;
 		virtual void drawRows() = 0;
 		virtual void drawCells() = 0;
+		virtual void drawChip() = 0;
 
 		int offsetX_;
 		int offsetY_;
@@ -66,18 +67,16 @@ class Painter
 
 class BsPainter : public Painter
 {
-
 	public:
 		BsPainter(std::shared_ptr<BookShelf::BookShelfDB> bsDB);
 
 		void drawDie() override;
 		void drawRows() override;
 		void drawCells() override;
+		void drawChip() override;
 
-		void drawRow();
+		void drawRow(BookShelf::BsRow* bsRow);
 		void drawCell();
-
-		void drawChip();
 
 	private:
 		void drawCell(BookShelf::BsCell* bsCell);
@@ -85,4 +84,4 @@ class BsPainter : public Painter
 	std::shared_ptr<BookShelf::BookShelfDB> bookShelfDB_;
 };
 
-}
+} // namespace Painter

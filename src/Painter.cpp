@@ -17,7 +17,7 @@ namespace Painter
 using namespace BookShelf;
 using namespace cimg_library;
 
-static const Color MACRO_COLOR		= aqua;
+static const Color MACRO_COLOR    = aqua;
 static const Color STD_CELL_COLOR = red;
 
 // Painter Interface //
@@ -151,14 +151,27 @@ void
 BsPainter::drawDie()
 {
 	drawRect(getX(bookShelfDB_->getDie()->lx()), getY(bookShelfDB_->getDie()->ly()), 
-			 getX(bookShelfDB_->getDie()->ux()), getY(bookShelfDB_->getDie()->uy()), 
-			 gray, black, DIE_LINE_THICKNESS);
+	         getX(bookShelfDB_->getDie()->ux()), getY(bookShelfDB_->getDie()->uy()), 
+	         gray, black, DIE_LINE_THICKNESS);
+}
+
+void
+BsPainter::drawRow(BsRow* row)
+{
+	int newLx = getX(row->lx());
+	int newLy = getY(row->ly());
+	int newUx = getX(row->ux());
+	int newUy = getY(row->uy());
+
+	drawRect(newLx, newLy, newUx, newUy, gray, 1);
 }
 
 void
 BsPainter::drawRows()
 {
 	printf("[GUI] Drawing Rows.\n");
+	for(auto &r : bookShelfDB_->rowVector())
+		drawRow(r);
 }
 
 void
@@ -172,8 +185,7 @@ BsPainter::drawCell(BsCell* cell)
 	if(cell->isTerminal())
 		drawRect(newLx, newLy, newUx, newUy, MACRO_COLOR, 1);
 	else
-		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, 
-		         black, 0);
+		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, black, 0);
 }
 
 void
@@ -188,8 +200,9 @@ void
 BsPainter::drawChip()
 {
 	drawDie();
+	//drawRows();
 	drawCells();
 	show();
 }
 
-}
+} // namespace Painter

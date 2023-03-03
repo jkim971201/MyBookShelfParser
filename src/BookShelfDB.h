@@ -14,8 +14,8 @@
 // it's just a container of raw values from original
 // input file ( .nodes .pl .scl .nets ) 
 // You don't have to worry about some APIs are missing
-// This is sufficient for building a PlacerDB
-// ** Some stupid implementations are existing...
+// because these are enough for building a PlacerDB
+// ** stupid implementations are existing...
 
 namespace BookShelf
 {
@@ -24,7 +24,7 @@ class BsPin;
 class BsNet;
 class BsCell;
 
-class BsDie
+class BsDie // should it be named as BsCore?
 {
 	public:
 		BsDie();
@@ -62,15 +62,15 @@ class BsRow
 		BsRow(int idx, int ly, int rowHeight, 
 		int siteWidth, int siteSpacing, int offsetX, int numSites);
 
-		int id() const { return idx_;                 }
+		int id() const { return idx_;                   }
 
-		int dx() const { return rowWidth_;            }
-		int dy() const { return rowHeight_;           }
+		int dx() const { return rowWidth_;              }
+		int dy() const { return rowHeight_;             }
 
-		int lx() const { return offsetX_;             }
-		int ly() const { return ly_;                  }
-		int ux() const { return offsetX_ + rowWidth_; }
-		int uy() const { return ly_ + rowHeight_;     }
+		int lx() const { return offsetX_;               }
+		int ly() const { return ly_;                    }
+		int ux() const { return offsetX_ + rowWidth_;   }
+		int uy() const { return ly_ + rowHeight_;       }
 
 		int siteSpacing() const { return siteSpacing_; }
 		int numSites()    const { return numSites_;    }
@@ -88,7 +88,7 @@ class BsRow
 		int  offsetX_;      // 7. SubrowOrigin
 		int  numSites_;     // 8. NumSites
 
-		// RowWidth = numSites * (siteSpacing + siteWidth) - siteSpacing 
+		// RowWidth = numSites * siteWidth - siteSpacing 
 		int  rowWidth_; 
 };
 
@@ -214,6 +214,7 @@ class BookShelfDB
 		const std::vector<BsCell*>& cellVector() const { return cellPtrs_; }
 		const std::vector<BsRow*>&  rowVector()  const { return rowPtrs_;  }
 		const std::vector<BsNet*>&  netVector()  const { return netPtrs_;  }
+		const std::vector<BsPin*>&  pinVector()  const { return pinPtrs_;  }
 
 		BsNet*  getBsNetByID(int id)              { return netMap_[id];  }
 		BsCell* getBsCellByName(std::string name) { return cellMap_[name]; }
