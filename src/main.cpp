@@ -19,7 +19,7 @@ int main(int argc, char** argv)
 
 	BookShelfParser Parser(aux_file);
 	Parser.Parse();
-	Parser.drawFromBookShelfDB();
+	//Parser.drawFromBookShelfDB();
 	
 	Placer Placer(&Parser);
 

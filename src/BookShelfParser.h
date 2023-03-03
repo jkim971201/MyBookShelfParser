@@ -34,7 +34,11 @@ class BookShelfParser
       return bookShelfDB_;
     };
 
+		int rowHeight() const { return maxRowHeight_; }
+
 	private:
+		int maxRowHeight_;
+
 		std::shared_ptr<BookShelfDB> bookShelfDB_;
 		std::shared_ptr<BsPainter> bsPainter_;
 

@@ -74,6 +74,7 @@ inline void getSuffix(const char* token, char* sfx)
 
 BookShelfParser::BookShelfParser()
 {
+	maxRowHeight_ = 0;
 	bookShelfDB_ = nullptr;
 }
 
@@ -106,6 +107,8 @@ BookShelfParser::Parse()
 	read_pl();
 	read_scl();
 	read_nets();
+
+	printf("[Parser] Parsing is finishied successfully!\n");
 }
 
 void
@@ -223,29 +226,29 @@ BookShelfParser::read_nodes()
 
 	while(!feof(fp))
 	{
-	std::string cellName = std::string(token);
+		std::string cellName = std::string(token);
 
-	// Get Width
+		// Get Width
 		token = getNextWord(" \t");
-	width = atoi(token);
+		width = atoi(token);
 
-	// Get Height
+		// Get Height
 		token = getNextWord(" \t");
-	height = atoi(token);
+		height = atoi(token);
 
-	// Check Terminal
+		// Check Terminal
 		token = getNextWord(" \t");
-	if(token && !strcmp(token, "terminal\n")) 
-		isTerminal	 = true;
-	else if(token && !strcmp(token, "terminal_NI\n"))
-		isTerminalNI = true;
+		if(token && !strcmp(token, "terminal\n")) 
+			isTerminal	 = true;
+		else if(token && !strcmp(token, "terminal_NI\n"))
+			isTerminalNI = true;
 
-	// Make a BsCell (==Node)
-	bookShelfDB_->makeBsCell(cellName, width, height, isTerminal, isTerminalNI);
-	//printf("[Parser] CellName: %s Width: %d Height: %d\n", cellName.c_str(), width, height); 
-	numLines++;
+		// Make a BsCell (==Node)
+		bookShelfDB_->makeBsCell(cellName, width, height, isTerminal, isTerminalNI);
+		//printf("[Parser] CellName: %s Width: %d Height: %d\n", cellName.c_str(), width, height); 
+		numLines++;
 
-	if(numLines % 100000 == 0)
+		if(numLines % 100000 == 0)
 			printf("[Parser] Completed %d lines\n", numLines);
 
 		token = goNextLine(buf, " \t\n", fp);
@@ -371,6 +374,7 @@ BookShelfParser::read_scl()
 		token = goNextLine(buf, " \t\n", fp);
 
 	int rowsRead = 0;
+	int maxRowHeight = 0;
 
 	while(!feof(fp))
 	{
@@ -401,6 +405,8 @@ BookShelfParser::read_scl()
 			{
 				token = getNextWord(" \t\n:");
 				rowHeight = atoi(token);
+				if(rowHeight > maxRowHeight)
+					maxRowHeight = rowHeight;
 			}
 			else if(!strcmp(token, "Sitewidth"))
 			{
@@ -468,6 +474,7 @@ BookShelfParser::read_scl()
 	}
 
 	bookShelfDB_->buildBsRowMap();
+	bookShelfDB_->setHeight(maxRowHeight);
 	assert(numRows == bookShelfDB_->rowVector().size());
 	printf("[Parser] Successfully Finished %s!\n", scl_);
 }

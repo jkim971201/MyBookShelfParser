@@ -220,7 +220,7 @@ class BookShelfDB
 		BsCell* getBsCellByName(std::string name) { return cellMap_[name]; }
 		BsRow*  getBsRowbyID(int id)              { return rowMap_[id];    }
 
-		const BsDie* getDie() { return bsDiePtr_; };
+		BsDie* getDie() const { return bsDiePtr_; };
 
 		void buildBsCellMap();
 		void buildBsRowMap();
@@ -236,12 +236,16 @@ class BookShelfDB
 		int getDieWidth() const  { return bsDiePtr_->dx(); }
 		int getDieHeight() const { return bsDiePtr_->dy(); }
 
+		int rowHeight() const { return rowHeight_; }
+		void setHeight(int rowHeight) { rowHeight_ = rowHeight; }
+
 	private:
+		int numRows_;
 		int numBsCells_;
 		int numStdBsCells_;
 		int numMacros_;
 
-		int numRows_;
+		int rowHeight_;
 
 		std::vector<BsRow*> rowPtrs_; 
 		std::vector<BsRow>  rowInsts_; 
