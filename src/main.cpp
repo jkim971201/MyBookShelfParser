@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 {
 	if(argc < 2)
 	{
-		std::cout << ".aux file is missing!" << std::endl;
+		printf(".aux file is missing!\n");
 		exit(0);
 	}
 

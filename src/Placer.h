@@ -13,7 +13,7 @@ using namespace BookShelf;
 class Placer
 {
 	public:
-		Placer(BookShelfParser* bsDB);
+		Placer(BookShelfParser* bsParser);
 
 	private:
 		std::shared_ptr<PlacerDB> db_;

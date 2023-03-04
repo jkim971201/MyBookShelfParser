@@ -42,14 +42,14 @@ inline void getDir(char* file, char* dir)
 	for(int i = 0; i < len; i++) 
 	{
 		if(file[i] == '/') 
-		next_to_last_slash = i + 1;
+			next_to_last_slash = i + 1;
 	}
 
 	dir[next_to_last_slash] = '\0';
 	// \0 == NULL
 }
 
-// What a stupid way....
+// What a stupid way...
 // But this seems best... at least to me...
 inline void catDirName(char* dir, char* name)
 {
@@ -57,6 +57,25 @@ inline void catDirName(char* dir, char* name)
 	strcpy(temp, dir);
 	strcat(temp, name);
 	strcpy(name, temp);
+}
+
+inline void getOnlyName(const char* file, char* name)
+{
+	int last_dot = 0;
+	int next_to_last_slash = 0;
+	int len = strlen(file);
+
+	for(int i = 0; i < len; i++) 
+	{
+		if(file[i] == '.') 
+			last_dot = i;
+		if(file[i] == '/') 
+			next_to_last_slash = i + 1;
+	}
+
+	int name_length = last_dot - next_to_last_slash;
+	for(int i = 0; i < name_length; i++)
+		name[i] = file[i + next_to_last_slash];
 }
 
 inline void getSuffix(const char* token, char* sfx)
@@ -67,7 +86,7 @@ inline void getSuffix(const char* token, char* sfx)
 	for(int i = 0; i < len; i++) 
 	{
 		if(token[i] == '.') 
-		last_dot = i;
+			last_dot = i;
 	}
 	strcpy(sfx, &token[last_dot + 1]);
 }
@@ -84,6 +103,8 @@ BookShelfParser::BookShelfParser(const char* aux_name)
 	char suf[4];
 	getSuffix(aux_name, suf);
 
+	getOnlyName(aux_name, benchName_);
+
 	if(!strcmp(suf, "aux"))
 	{
 		strcpy(aux_, aux_name);
@@ -91,8 +112,8 @@ BookShelfParser::BookShelfParser(const char* aux_name)
 	}
 	else
 	{
-		printf("[Parser] Make sure you specify .aux file\n");
-	exit(0);
+		printf("[Parser] Make sure you give .aux file\n");
+		exit(0);
 	}
 }
 

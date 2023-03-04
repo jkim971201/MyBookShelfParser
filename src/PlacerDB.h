@@ -18,6 +18,7 @@ class Net;
 class Cell
 {
 	public:
+		Cell();
 		Cell(BsCell* BsCell, int height);
 		// height == criterion of macro
 
@@ -61,12 +62,15 @@ class Cell
 class Net
 {
 	public:
+		Net();
 		Net(BsNet* BsNet);
 
 		int lx() const { return lx_; }
 		int ly() const { return ly_; }
 		int ux() const { return ux_; }
 		int uy() const { return uy_; }
+
+		int hpwl() const { return (ux_ - lx_ + uy_ - ly_); } 
 
 		double weight() const { return weight_; }
 
@@ -75,6 +79,8 @@ class Net
 		void addNewPin(Pin* pin) { pins_.push_back(pin); }
 
 		void setWeight(double weight) { weight_ = weight; }
+
+		void updateBBox();
 
 		BsNet* bsNet() const { return bsNet_; }
 
@@ -95,6 +101,7 @@ class Net
 class Pin
 {
 	public:
+		Pin();
 		Pin(BsPin* BsPin);
 
 		char io() const { return io_; }
@@ -107,6 +114,8 @@ class Pin
 
 		BsPin* bsPin() const { return bsPin_; }
 
+		void updatePinLocation(Cell* cell);
+
 	private:
 		BsPin* bsPin_;
 
@@ -114,6 +123,9 @@ class Pin
 
 		int cx_;
 		int cy_;
+
+		int offsetX_;
+		int offsetY_;
 
 		Net* net_;
 		Cell* cell_;
@@ -141,7 +153,9 @@ class Die
 class PlacerDB
 {
 	public: 
-		PlacerDB(std::shared_ptr<BookShelfDB> bookShelfDB);
+		PlacerDB();
+		PlacerDB(const char* benchName,
+				     std::shared_ptr<BookShelfDB> bookShelfDB);
 
 		const std::vector<Cell*>& cells() const { return cellPtrs_; }
 		const std::vector<Net*>&  nets()  const { return netPtrs_;  }
@@ -154,10 +168,20 @@ class PlacerDB
 
 		void bookShelfDBtoPlacerDB();
 
+		void printInfo() const;
+
 	private:
 		std::shared_ptr<BookShelfDB> bsDB_;
+		const char* benchName_;
 
 		int maxRowHeight_;
+
+		int numStdCells_;
+		int numMacro_;
+		int numFixed_;
+		int numMovable_;
+
+		int initialHPWL_;
 
 		bool bookShelfFlag_;
 		bool lefdefFlag_;
