@@ -254,16 +254,18 @@ PlacerDB::PlacerDB(const char* benchName,
 void
 PlacerDB::printInfo() const
 {
-	printf("--------------------------------\n");
-	printf("| Bench        | %11s    |\n", benchName_);
-	printf("| NumStd       | %10d    |\n", numStdCells_);
-	printf("| NumMacro     | %10d    |\n", numMacro_);
-	printf("| NumMovables  | %10d    |\n", numMovable_);
-	printf("| NumFixed     | %10d    |\n", numFixed_);
-	printf("| NumTotal     | %10d    |\n", numStdCells_ + numMacro_);
+	printf("  --------------------------------\n");
+	printf("  |     Benchmark Statistics     |\n");
+	printf("  --------------------------------\n");
+	printf("  | Bench        | %10s    |\n", benchName_);
+	printf("  | NumStd       | %10d    |\n", numStdCells_);
+	printf("  | NumMacro     | %10d    |\n", numMacro_);
+	printf("  | NumMovables  | %10d    |\n", numMovable_);
+	printf("  | NumFixed     | %10d    |\n", numFixed_);
+	printf("  | NumTotal     | %10d    |\n", numStdCells_ + numMacro_);
 	if(initialHPWL_ > 0 && initialHPWL_ != INT_MAX) 
-		printf("| Initial HPWL | %10d    |\n", initialHPWL_/BS_DB);
-	printf("--------------------------------\n");
+	printf("  | Initial HPWL | %10d    |\n", initialHPWL_/BS_DB);
+	printf("  --------------------------------\n");
 }
 
 } // namespace PlacerBase
