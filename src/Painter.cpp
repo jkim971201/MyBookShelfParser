@@ -1,4 +1,5 @@
 #include "Painter.h"
+#include "PlacerDB.h"
 #include "BookShelfDB.h"
 #include <stdio.h>
 #include "CImg.h"
@@ -15,10 +16,12 @@ namespace Painter
 {
 
 using namespace BookShelf;
+using namespace PlacerBase;
 using namespace cimg_library;
 
 static const Color MACRO_COLOR    = aqua;
 static const Color STD_CELL_COLOR = red;
+static const Color STD_CELL_LINE_COLOR = black;
 
 // Painter Interface //
 Painter::Painter() 
@@ -126,6 +129,96 @@ Painter::show()
 	exit(0);
 }
 
+
+// PlacerDB Painter //
+PlPainter::PlPainter(std::shared_ptr<PlacerBase::PlacerDB> plDB)
+{
+	plDB_ = plDB;
+
+	maxWidth_ = 0;
+	maxHeight_ = 0;
+	for(auto c : plDB_->cells())
+	{
+		if(c->ux() > maxWidth_)
+			maxWidth_ = c->ux();
+		if(c->uy() > maxHeight_)
+			maxHeight_ = c->uy();
+	}
+
+	double scaleX = double(MAX_H) / double(maxWidth_);
+	double scaleY = double(MAX_H) / double(maxHeight_);
+
+	scale_	= std::min(scaleX, scaleY);
+}
+
+void
+PlPainter::drawDie()
+{
+	drawRect(getX(plDB_->die()->lx()), getY(plDB_->die()->ly()), 
+	         getX(plDB_->die()->ux()), getY(plDB_->die()->uy()), 
+	         gray, black, DIE_LINE_THICKNESS);
+}
+
+void
+PlPainter::drawRows()
+{
+	// Not Implemented Yet
+}
+
+void
+PlPainter::drawNet(Net* net)
+{
+	int newLx = getX(net->lx());
+	int newLy = getY(net->ly());
+	int newUx = getX(net->ux());
+	int newUy = getY(net->uy());
+
+	drawLine(newLx, newLy, newUx, newLy, black);
+	drawLine(newUx, newLy, newUx, newUy, black);
+	drawLine(newUx, newUy, newLx, newUy, black);
+	drawLine(newLx, newUy, newLx, newLy, black);
+}
+
+void
+PlPainter::drawNets()
+{
+	printf("[GUI] Drawing Nets.\n");
+	for(auto &c : plDB_->nets())
+		drawNet(c);
+}
+
+void
+PlPainter::drawCell(Cell* cell)
+{
+	int newLx = getX(cell->lx());
+	int newLy = getY(cell->ly());
+	int newUx = getX(cell->ux());
+	int newUy = getY(cell->uy());
+
+	if(cell->isMacro())
+		drawRect(newLx, newLy, newUx, newUy, MACRO_COLOR, 1);
+	else
+		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, STD_CELL_LINE_COLOR, 0);
+}
+
+void
+PlPainter::drawCells()
+{
+	printf("[GUI] Drawing Cells.\n");
+	for(auto &c : plDB_->cells())
+		drawCell(c);
+}
+
+void
+PlPainter::drawChip()
+{
+	drawDie();
+	drawCells();
+	//drawNets();
+	show();
+}
+
+
 // BookShelf Painter //
 BsPainter::BsPainter(std::shared_ptr<BookShelf::BookShelfDB> bsDB)
 {
@@ -136,9 +229,9 @@ BsPainter::BsPainter(std::shared_ptr<BookShelf::BookShelfDB> bsDB)
 	for(auto c : bookShelfDB_->cellVector())
 	{
 		if(c->ux() > maxWidth_)
-		maxWidth_ = c->ux();
+			maxWidth_ = c->ux();
 		if(c->uy() > maxHeight_)
-		maxHeight_ = c->uy();
+			maxHeight_ = c->uy();
 	}
 
 	double scaleX = double(MAX_H) / double(maxWidth_);

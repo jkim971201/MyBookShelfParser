@@ -212,11 +212,11 @@ class BookShelfDB
 		               int siteWidth, int siteSpacing, int offsetX, int numSites);
 
 		const std::vector<BsCell*>& cellVector() const { return cellPtrs_; }
-		const std::vector<BsRow*>&  rowVector()  const { return rowPtrs_;  }
-		const std::vector<BsNet*>&  netVector()  const { return netPtrs_;  }
-		const std::vector<BsPin*>&  pinVector()  const { return pinPtrs_;  }
+		const std::vector<BsRow*>&   rowVector() const { return rowPtrs_;  }
+		const std::vector<BsNet*>&   netVector() const { return netPtrs_;  }
+		const std::vector<BsPin*>&   pinVector() const { return pinPtrs_;  }
 
-		BsNet*  getBsNetByID(int id)              { return netMap_[id];  }
+		BsNet*  getBsNetByID(int id)              { return netMap_[id];    }
 		BsCell* getBsCellByName(std::string name) { return cellMap_[name]; }
 		BsRow*  getBsRowbyID(int id)              { return rowMap_[id];    }
 

@@ -609,7 +609,7 @@ BookShelfParser::read_nets()
 void
 BookShelfParser::drawFromBookShelfDB()
 {
-	printf("[Parser] Draw from BookShelfDB\n");
+	printf("[Parser] Draw from BookShelfDB.\n");
 	bsPainter_ = std::make_shared<BsPainter>(bookShelfDB_);
 	bsPainter_->drawChip();
 }

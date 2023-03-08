@@ -184,11 +184,20 @@ BookShelfDB::makeBsPin(BsCell* cell, int netID,
 	double cell_half_w = static_cast<double>(cell->dx()) / 2;
 	double cell_half_h = static_cast<double>(cell->dy()) / 2;
 
-	if(std::abs(offsetX) > cell_half_w ||
-		 std::abs(offsetY) > cell_half_h ) 
+	if(std::abs(offsetX) > cell_half_w)
 	{
-		printf("[BookShelfDB] [Error] Pin is out of Cell Boundary.\n");
-		exit(0);
+		printf("[BookShelfDB] [Warning] Pin of Cell %s is out of Cell Boundary.\n", 
+					                               cell->name().c_str());
+		printf("[BookShelfDB] [Warning] Pin OffsetX %.1f is larger than Cell Half Width %.1f \n",
+					                                      offsetX,                     cell_half_w);
+	}
+
+	if(std::abs(offsetY) > cell_half_h)
+	{
+		printf("[BookShelfDB] [Warning] Pin of Cell %s is out of Cell Boundary.\n", 
+					                               cell->name().c_str());
+		printf("[BookShelfDB] [Warning] Pin OffsetY %.1f is larger than Cell Half Height %.1f \n",
+					                                      offsetY,                     cell_half_h);
 	}
 
 	BsPin oneBsPin(cell, netID, offsetX, offsetY, IO);

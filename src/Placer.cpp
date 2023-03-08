@@ -18,4 +18,12 @@ Placer::Placer(BookShelfParser* bsParser)
 	db_->printInfo();
 }
 
+void
+Placer::drawFromPlacerDB()
+{
+	printf("[Placer] Draw from PlacerDB.\n");
+	plPainter_ = std::make_shared<PlPainter>(db_);
+	plPainter_->drawChip();
+}
+
 } // namespace PlacerBase

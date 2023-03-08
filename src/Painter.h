@@ -2,6 +2,7 @@
 
 #include <memory>
 #include "CImg.h"
+#include "PlacerDB.h"
 #include "BookShelfDB.h"
 
 namespace Painter
@@ -19,6 +20,7 @@ static const unsigned char white[]  = {255, 255, 255},
                            aqua[]   = {204, 204, 255};
 
 using namespace BookShelf;
+using namespace PlacerBase;
 using namespace cimg_library;
 
 typedef const unsigned char* Color;
@@ -76,12 +78,31 @@ class BsPainter : public Painter
 		void drawChip() override;
 
 		void drawRow(BookShelf::BsRow* bsRow);
-		void drawCell();
 
 	private:
 		void drawCell(BookShelf::BsCell* bsCell);
 
-	std::shared_ptr<BookShelf::BookShelfDB> bookShelfDB_;
+		std::shared_ptr<BookShelf::BookShelfDB> bookShelfDB_;
 };
+
+class PlPainter : public Painter
+{
+	public:
+		PlPainter(std::shared_ptr<PlacerBase::PlacerDB> plDB);
+
+		void drawDie() override;
+		void drawRows() override;
+		void drawCells() override;
+		void drawChip() override;
+		void drawNets();
+
+		void drawNet(PlacerBase::Net* net);
+
+	private:
+		void drawCell(PlacerBase::Cell* cell);
+
+		std::shared_ptr<PlacerBase::PlacerDB> plDB_;
+};
+
 
 } // namespace Painter

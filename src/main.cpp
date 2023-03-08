@@ -22,6 +22,7 @@ int main(int argc, char** argv)
 	//Parser.drawFromBookShelfDB();
 	
 	Placer Placer(&Parser);
+	Placer.drawFromPlacerDB();
 
 	return 0;
 }
