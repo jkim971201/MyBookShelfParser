@@ -32,6 +32,8 @@ class Painter
 		void show();
 
 	protected:
+		bool check_inside(int lx, int ly, int w, int h);
+
 		int getX(int dbX);
 		int getY(int dbY);
 
@@ -41,7 +43,7 @@ class Painter
 
 		void drawRect(int lx, int ly, int ux, int uy, Color rect_c, int w);
 		void drawRect(int lx, int ly, int ux, int uy, Color rect_c, 
-		              Color line_c = black, int w = 0);
+		              Color line_c = black, int w = 0, float opacity = 1.0);
 		              // line_c: border-line color
 		              // w : Thicnkness of border-line
 
@@ -54,6 +56,9 @@ class Painter
 
 		int offsetX_;
 		int offsetY_;
+
+		int canvasX_;
+		int canvasY_;
 
 		double scale_; 
 		// Scaling Factor to fit the window size

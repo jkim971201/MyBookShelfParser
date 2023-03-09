@@ -234,11 +234,11 @@ PlacerDB::PlacerDB()
 PlacerDB::PlacerDB(const char* benchName,
 		               std::shared_ptr<BookShelfDB> bookShelfDB) : PlacerDB()
 {
-	bsDB_ = bookShelfDB;
+	bsDB_      = bookShelfDB;
 	benchName_ = benchName;
 
 	maxRowHeight_ = bsDB_->rowHeight();
-	if(maxRowHeight_ < 0)
+	if(maxRowHeight_ <= 0)
 	{
 		printf("[PlacerDB] Row Height must be larger than 0!\n");
 		exit(0);

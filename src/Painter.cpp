@@ -7,10 +7,19 @@
 #define MAX_W 2000
 #define MAX_H 2000
 
+#define ZOOM_SPEED 100
+#define MOVE_SPEED 100
+
 #define DIE_OFFSET_X 20
 #define DIE_OFFSET_Y 20
 
-#define DIE_LINE_THICKNESS 3
+#define DIE_OPACITY      1.0
+#define MACRO_OPACITY    0.7
+#define STD_CELL_OPACITY 0.7
+
+#define DIE_LINE_THICKNESS      1
+#define MACRO_LINE_THICKNESS    0
+#define STD_CELL_LINE_THICKNESS 0
 
 namespace Painter
 {
@@ -19,9 +28,13 @@ using namespace BookShelf;
 using namespace PlacerBase;
 using namespace cimg_library;
 
-static const Color MACRO_COLOR    = aqua;
-static const Color STD_CELL_COLOR = red;
-static const Color STD_CELL_LINE_COLOR = black;
+static const Color DIE_COLOR             = gray;
+static const Color MACRO_COLOR           = aqua;
+static const Color STD_CELL_COLOR        = red;
+
+static const Color DIE_LINE_COLOR        = black;
+static const Color MACRO_LINE_COLOR      = black;
+static const Color STD_CELL_LINE_COLOR   = black;
 
 // Painter Interface //
 Painter::Painter() 
@@ -31,14 +44,16 @@ Painter::Painter()
 	offsetX_ = DIE_OFFSET_X;
 	offsetY_ = DIE_OFFSET_Y;
 
-	int canvasX = MAX_H + 2 * DIE_OFFSET_X;
-	int canvasY = MAX_H + 2 * DIE_OFFSET_Y;
+	canvasX_ = MAX_H + 2 * DIE_OFFSET_X;
+	canvasY_ = MAX_H + 2 * DIE_OFFSET_Y;
 
-	canvas_ = new CImg<unsigned char>(canvasX, canvasY, 1, 3, 255);
-	canvas_->draw_rectangle(0, 0, canvasX, canvasY, white);
+	canvas_ = new CImg<unsigned char>(canvasX_, canvasY_, 1, 3, 255);
+	canvas_->draw_rectangle(0, 0, canvasX_, canvasY_, white);
 
-	img_ = new CImg<unsigned char>(*canvas_);
-	window_ = new CImgDisplay(canvasX, canvasY, "Placement GUI");
+	// img_ := Original image which represents the whole placement
+	// any 'zoomed' image will use a crop of this img_
+	img_    = new CImg<unsigned char>(*canvas_);
+	window_ = new CImgDisplay(canvasX_, canvasY_, "Placement GUI");
 }
 
 int
@@ -69,18 +84,17 @@ Painter::drawLine(int x1, int y1, int x2, int y2, Color color)
 	img_->draw_line(x1, y1, x2, y2, color);
 }
 
-
 void
 Painter::drawRect(int lx, int ly, int ux, int uy, Color rect_c, int w)
 {
-	drawRect(lx, ly, ux, uy, rect_c, black, w);
+	drawRect(lx, ly, ux, uy, rect_c, black, w, 1.0);
 }
 
 void
 Painter::drawRect(int lx, int ly, int ux, int uy, Color rect_c,
-                  Color line_c, int w)
+                  Color line_c, int w, float opacity)
 {
-	img_->draw_rectangle(lx, ly, ux, uy, rect_c);
+	img_->draw_rectangle(lx, ly, ux, uy, rect_c, opacity);
 	drawLine(lx, ly, ux, ly, line_c);
 	drawLine(ux, ly, ux, uy, line_c);
 	drawLine(ux, uy, lx, uy, line_c);
@@ -109,7 +123,7 @@ Painter::drawRect(int lx, int ly, int ux, int uy, Color rect_c,
 			         ux + xd * i, ly - yd * i, line_c);
 
 			drawLine(ux + xd * i, ly - yd * i, 
-			         ux + xd * i, uy + yd * i , line_c);
+			         ux + xd * i, uy + yd * i, line_c);
 
 			drawLine(ux + xd * i, uy + yd * i, 
 			         lx - xd * i, uy + yd * i, line_c);
@@ -123,12 +137,103 @@ Painter::drawRect(int lx, int ly, int ux, int uy, Color rect_c,
 void 
 Painter::show()
 {
-	img_->display(*window_);
-	while(!window_->is_closed() && !window_->is_keyESC())
-			wait(window_);
+	int viewX = 0;
+	int viewY = 0;
+
+	int ZoomBoxW  = canvasX_; 
+	int ZoomBoxH  = canvasY_; 
+
+	bool redraw = false;
+
+	int lx = 0;
+	int ly = 0;
+
+	CImg<unsigned char> ZoomBox 
+		= img_->get_crop(lx, ly, lx + canvasX_, ly + canvasY_);
+
+	// Interactive Mode //
+	while(!window_->is_closed() && !window_->is_keyESC()
+			                        && !window_->is_keyQ())
+	{
+		if(redraw)
+		{
+			ZoomBox 
+				= img_->get_crop(lx, ly, lx + ZoomBoxW, ly + ZoomBoxH);
+			redraw = false;
+		}
+
+		//ZoomBox.resize(ZoomBoxW, ZoomBoxH);
+		ZoomBox.display(*window_);
+
+		if(window_->key())
+		{
+			switch(window_->key())
+			{
+				case cimg::keyARROWUP:
+					if(check_inside(lx, ly - MOVE_SPEED, ZoomBoxW, ZoomBoxH))
+					{
+						ly -= MOVE_SPEED;
+						redraw = true;
+					}
+					break;
+				case cimg::keyARROWDOWN:
+					if(check_inside(lx, ly + MOVE_SPEED, ZoomBoxW, ZoomBoxH))
+					{
+						ly += MOVE_SPEED;
+						redraw = true;
+					}
+					break;
+				case cimg::keyARROWLEFT:
+					if(check_inside(lx - MOVE_SPEED, ly, ZoomBoxW, ZoomBoxH))
+					{
+						lx -= MOVE_SPEED;
+						redraw = true;
+					}
+					break;
+				case cimg::keyARROWRIGHT:
+					if(check_inside(lx + MOVE_SPEED, ly, ZoomBoxW, ZoomBoxH))
+					{
+						lx += MOVE_SPEED;
+						redraw = true;
+					}
+					break;
+
+				case cimg::keyZ:
+					if(ZoomBoxW > ZOOM_SPEED 
+					&& ZoomBoxH > ZOOM_SPEED)
+					{
+						redraw = true;
+						ZoomBoxW -= ZOOM_SPEED;
+						ZoomBoxH -= ZOOM_SPEED;
+					}
+					break;
+				case cimg::keyX:
+					if(ZoomBoxW <= canvasX_ - ZOOM_SPEED 
+				  && ZoomBoxH <= canvasY_ - ZOOM_SPEED)
+					{
+						redraw = true;
+						ZoomBoxW += ZOOM_SPEED;
+						ZoomBoxH += ZOOM_SPEED;
+					}
+					break;
+			}
+			window_->set_key(); // Flush all key events...
+		}
+
+		window_->wait();
+	}
 	exit(0);
 }
 
+bool 
+Painter::check_inside(int lx, int ly, int w, int h)
+{
+	if(lx < 0)            return false;
+	if(ly < 0)            return false;
+	if(lx + w > canvasX_) return false;
+	if(ly + h > canvasY_) return false;
+	return true;
+}
 
 // PlacerDB Painter //
 PlPainter::PlPainter(std::shared_ptr<PlacerBase::PlacerDB> plDB)
@@ -156,7 +261,7 @@ PlPainter::drawDie()
 {
 	drawRect(getX(plDB_->die()->lx()), getY(plDB_->die()->ly()), 
 	         getX(plDB_->die()->ux()), getY(plDB_->die()->uy()), 
-	         gray, black, DIE_LINE_THICKNESS);
+	         gray, DIE_LINE_COLOR, DIE_LINE_THICKNESS, DIE_OPACITY);
 }
 
 void
@@ -196,9 +301,19 @@ PlPainter::drawCell(Cell* cell)
 	int newUy = getY(cell->uy());
 
 	if(cell->isMacro())
-		drawRect(newLx, newLy, newUx, newUy, MACRO_COLOR, 1);
+	{
+		drawRect(newLx, newLy, newUx, newUy, MACRO_COLOR, 
+		                                     MACRO_LINE_COLOR,
+		                                     MACRO_LINE_THICKNESS, 
+																				 MACRO_OPACITY);
+	}
 	else
-		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, STD_CELL_LINE_COLOR, 0);
+	{
+		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, 
+				                                 STD_CELL_LINE_COLOR, 
+				                                 STD_CELL_LINE_THICKNESS,
+																				 STD_CELL_OPACITY);
+	}
 }
 
 void
@@ -245,7 +360,7 @@ BsPainter::drawDie()
 {
 	drawRect(getX(bookShelfDB_->getDie()->lx()), getY(bookShelfDB_->getDie()->ly()), 
 	         getX(bookShelfDB_->getDie()->ux()), getY(bookShelfDB_->getDie()->uy()), 
-	         gray, black, DIE_LINE_THICKNESS);
+	         DIE_COLOR, DIE_LINE_COLOR, DIE_LINE_THICKNESS, DIE_OPACITY);
 }
 
 void
@@ -278,7 +393,7 @@ BsPainter::drawCell(BsCell* cell)
 	if(cell->isTerminal())
 		drawRect(newLx, newLy, newUx, newUy, MACRO_COLOR, 1);
 	else
-		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, black, 0);
+		drawRect(newLx, newLy, newUx, newUy, STD_CELL_COLOR, 0);
 }
 
 void
@@ -297,5 +412,6 @@ BsPainter::drawChip()
 	drawCells();
 	show();
 }
+
 
 } // namespace Painter
