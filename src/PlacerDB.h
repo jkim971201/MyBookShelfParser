@@ -70,6 +70,11 @@ class Net
 		int ux() const { return ux_; }
 		int uy() const { return uy_; }
 
+		int dx() const { return ux_ - lx_; }
+		int dy() const { return uy_ - ly_; }
+
+		int deg() const { return pins_.size(); }
+
 		int hpwl() const { return (ux_ - lx_ + uy_ - ly_); } 
 
 		double weight() const { return weight_; }

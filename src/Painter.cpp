@@ -4,11 +4,16 @@
 #include <stdio.h>
 #include "CImg.h"
 
-#define MAX_W 2000
-#define MAX_H 2000
+// Not a real size
+// MAX_W, MAX_H is just a imaginary size
+#define MAX_W 8000
+#define MAX_H 8000
 
-#define ZOOM_SPEED 100
-#define MOVE_SPEED 100
+#define WINDOW_W 1600
+#define WINDOW_H 1600
+
+#define ZOOM_SPEED 300
+#define MOVE_SPEED 300
 
 #define DIE_OFFSET_X 20
 #define DIE_OFFSET_Y 20
@@ -32,6 +37,7 @@ static const Color DIE_COLOR             = gray;
 static const Color MACRO_COLOR           = aqua;
 static const Color STD_CELL_COLOR        = red;
 
+static const Color NET_LINE_COLOR        = blue;
 static const Color DIE_LINE_COLOR        = black;
 static const Color MACRO_LINE_COLOR      = black;
 static const Color STD_CELL_LINE_COLOR   = black;
@@ -44,16 +50,17 @@ Painter::Painter()
 	offsetX_ = DIE_OFFSET_X;
 	offsetY_ = DIE_OFFSET_Y;
 
-	canvasX_ = MAX_H + 2 * DIE_OFFSET_X;
+	canvasX_ = MAX_W + 2 * DIE_OFFSET_X;
 	canvasY_ = MAX_H + 2 * DIE_OFFSET_Y;
 
+	// canvas is just a background image for placement visualization
 	canvas_ = new CImg<unsigned char>(canvasX_, canvasY_, 1, 3, 255);
 	canvas_->draw_rectangle(0, 0, canvasX_, canvasY_, white);
 
 	// img_ := Original image which represents the whole placement
 	// any 'zoomed' image will use a crop of this img_
 	img_    = new CImg<unsigned char>(*canvas_);
-	window_ = new CImgDisplay(canvasX_, canvasY_, "Placement GUI");
+	//window_ = new CImgDisplay(canvasX_, canvasY_, "Placement GUI");
 }
 
 int
@@ -140,8 +147,8 @@ Painter::show()
 	int viewX = 0;
 	int viewY = 0;
 
-	int ZoomBoxW  = canvasX_; 
-	int ZoomBoxH  = canvasY_; 
+	int ZoomBoxW  = MAX_H; 
+	int ZoomBoxH  = MAX_W; 
 
 	bool redraw = false;
 
@@ -151,6 +158,8 @@ Painter::show()
 	CImg<unsigned char> ZoomBox 
 		= img_->get_crop(lx, ly, lx + canvasX_, ly + canvasY_);
 
+	window_ = new CImgDisplay(WINDOW_W, WINDOW_H, "Placement GUI");
+
 	// Interactive Mode //
 	while(!window_->is_closed() && !window_->is_keyESC()
 			                        && !window_->is_keyQ())
@@ -159,6 +168,7 @@ Painter::show()
 		{
 			ZoomBox 
 				= img_->get_crop(lx, ly, lx + ZoomBoxW, ly + ZoomBoxH);
+			ZoomBox.resize(*window_);
 			redraw = false;
 		}
 
@@ -278,18 +288,34 @@ PlPainter::drawNet(Net* net)
 	int newUx = getX(net->ux());
 	int newUy = getY(net->uy());
 
-	drawLine(newLx, newLy, newUx, newLy, black);
-	drawLine(newUx, newLy, newUx, newUy, black);
-	drawLine(newUx, newUy, newLx, newUy, black);
-	drawLine(newLx, newUy, newLx, newLy, black);
+	drawLine(newLx, newLy, newUx, newLy, NET_LINE_COLOR);
+	drawLine(newUx, newLy, newUx, newUy, NET_LINE_COLOR);
+	drawLine(newUx, newUy, newLx, newUy, NET_LINE_COLOR);
+	drawLine(newLx, newUy, newLx, newLy, NET_LINE_COLOR);
 }
 
 void
 PlPainter::drawNets()
 {
 	printf("[GUI] Drawing Nets.\n");
-	for(auto &c : plDB_->nets())
-		drawNet(c);
+	int i = 0;
+
+	int cellH = 0;
+	for(auto &c : plDB_->cells())
+	{
+		if(!c->isMacro())
+		{
+			cellH = c->dy();
+			break;
+		}
+	}
+
+	for(auto &n : plDB_->nets())
+	{
+		if(n->dy() > 5 * cellH) continue;
+		if(n->dx() > 5 * cellH) continue;
+		if(i++ % 3 == 0) drawNet(n);
+	}
 }
 
 void
@@ -329,7 +355,7 @@ PlPainter::drawChip()
 {
 	drawDie();
 	drawCells();
-	//drawNets();
+	drawNets();
 	show();
 }
 
