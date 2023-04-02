@@ -23,7 +23,7 @@
 #define STD_CELL_OPACITY 0.7
 
 #define DIE_LINE_THICKNESS      1
-#define MACRO_LINE_THICKNESS    0
+#define MACRO_LINE_THICKNESS    1
 #define STD_CELL_LINE_THICKNESS 0
 
 namespace Painter
@@ -312,6 +312,9 @@ PlPainter::drawNets()
 
 	for(auto &n : plDB_->nets())
 	{
+		// For readability
+		// Too Large BBoxs make it difficult to
+		// recognize other BBoxs
 		if(n->dy() > 5 * cellH) continue;
 		if(n->dx() > 5 * cellH) continue;
 		if(i++ % 3 == 0) drawNet(n);
@@ -355,7 +358,7 @@ PlPainter::drawChip()
 {
 	drawDie();
 	drawCells();
-	drawNets();
+	//drawNets();
 	show();
 }
 
